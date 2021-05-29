@@ -10,7 +10,6 @@ local function create_buffer(code_actions)
 
   -- Set the filetype after the content because the fplugin makes it unmodifiable.
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-menu')
-  vim.api.nvim_buf_set_name(buffer_number, 'Code Action Menu')
 
   return buffer_number
 end

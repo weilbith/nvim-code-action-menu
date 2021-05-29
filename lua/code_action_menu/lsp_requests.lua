@@ -17,7 +17,11 @@ local function request_code_actions()
     end
   end
 
-  return all_code_actions
+  if #all_code_actions == 0 then
+    vim.api.nvim_notify('No code actions available', vim.log.levels.WARN, {})
+  else
+    return all_code_actions
+  end
 end
 
 local function execute_code_action(code_action)
