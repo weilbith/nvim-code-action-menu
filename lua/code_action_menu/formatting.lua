@@ -4,8 +4,11 @@ local function get_code_action_summaries(code_actions)
   local all_summaries = {}
 
   for index, code_action in ipairs(code_actions) do
-    -- Add a leading space for the cursor.
-    local summary = ' [' .. index .. '] ' .. code_action.title
+    local preferred = (code_action.isPreferred or false) and '*' or ' '
+    local key = '[' .. index .. ']'
+    local kind = '(' .. (code_action.kind or 'empty') .. ')'
+    local title = code_action.title
+    local summary = preferred .. key .. ' ' .. kind .. ' ' .. title
     table.insert(all_summaries, summary)
   end
 
