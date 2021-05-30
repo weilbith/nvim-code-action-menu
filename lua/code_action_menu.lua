@@ -48,10 +48,18 @@ local function execute_selected_code_action()
   lsp_requests.execute_code_action(selected_code_action)
 end
 
+local function select_line_and_execute_code_action(line_number)
+  vim.validate({['to select menu line number'] = { line_number, 'number' }})
+
+  vim.api.nvim_win_set_cursor(menu_window_instance.window_number, { line_number, 0 })
+  execute_selected_code_action()
+end
+
 return {
   open_code_action_menu = open_code_action_menu,
   update_code_action_details = update_code_action_details,
   close_code_action_menu = close_code_action_menu,
   close_warning_message_window = close_warning_message_window,
   execute_selected_code_action = execute_selected_code_action,
+  select_line_and_execute_code_action = select_line_and_execute_code_action,
 }
