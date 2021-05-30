@@ -1,11 +1,21 @@
+local M = {}
+package.loaded[...] = M
+
 local formatting_utils = require('code_action_menu.formatting')
 local lsp_requests = require('code_action_menu.lsp_requests')
+local details_window = require('code_action_menu.details_window')
 
-local function create_buffer(code_actions)
-  vim.validate({['code actions'] = { code_actions, 'table' }})
+-- The major purpose of this variable is to give other parts of the code access to it.
+-- Alternative would include some awkward searching through all windows.
+-- Though as it is there, it gets used at some more places.
+-- In case the variable gets out of sync, it gets fixed the next time a window gets opened.
+local code_action_menu_window_number = -1
+
+local function create_buffer(all_code_actions)
+  vim.validate({['all code actions'] = { all_code_actions, 'table' }})
 
   local buffer_number = vim.api.nvim_create_buf(false, true)
-  local summaries = formatting_utils.get_code_action_summaries(code_actions)
+  local summaries = formatting_utils.get_all_code_action_summaries(all_code_actions)
   vim.api.nvim_buf_set_lines(buffer_number, 0, 1, false, summaries)
 
   -- Set the filetype after the content because the fplugin makes it unmodifiable.
@@ -36,14 +46,14 @@ local function set_window_options(window_number, window_options)
   end
 end
 
-local function open_window(code_actions)
-  vim.validate({['code actions'] = { code_actions, 'table' }})
+local function open_code_action_menu_window(all_code_actions)
+  vim.validate({['all code actions'] = { all_code_actions, 'table' }})
 
-  local buffer_number = create_buffer(code_actions)
+  local buffer_number = create_buffer(all_code_actions)
   local buffer_width = get_buffer_width(buffer_number) + 1
   local window_open_options = vim.lsp.util.make_floating_popup_options(
     buffer_width,
-    #code_actions,
+    #all_code_actions,
     { border = 'single' }
   )
   local window_set_options = {
@@ -56,21 +66,33 @@ local function open_window(code_actions)
   }
 
   local window_number = vim.api.nvim_open_win(buffer_number, true, window_open_options)
-  vim.api.nvim_buf_set_var(buffer_number, 'code_actions', code_actions)
+  vim.api.nvim_win_set_var(window_number, 'all_code_actions', all_code_actions)
   set_window_options(window_number, window_set_options)
+  code_action_menu_window_number = window_number
 end
 
--- Meant to be execute within the menu window.
-local function select_code_action()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local line = cursor[1]
-  local code_actions = vim.api.nvim_buf_get_var(0, 'code_actions')
-  local selected_action = code_actions[line]
-  vim.api.nvim_win_close(0, true) -- Close first to execute the action in the correct buffer.
-  lsp_requests.execute_code_action(selected_action)
+local function close_code_action_menu_window()
+  details_window.close_code_action_details_window()
+  pcall(vim.api.nvim_win_close, code_action_menu_window_number, true)
+  code_action_menu_window_number = -1
 end
 
-return {
-  open_window = open_window,
-  select_code_action = select_code_action,
+local function get_selected_code_action_in_open_menu()
+  if code_action_menu_window_number == -1 then
+    error('Can not retrieve selected code action as no menu is open!')
+  else
+    local all_code_actions = vim.api.nvim_win_get_var(code_action_menu_window_number, 'all_code_actions')
+    local cursor = vim.api.nvim_win_get_cursor(code_action_menu_window_number)
+    local line = cursor[1]
+    return all_code_actions[line]
+  end
+end
+
+M = {
+  code_action_menu_window_number = code_action_menu_window_number,
+  open_code_action_menu_window = open_code_action_menu_window,
+  get_selected_code_action_in_open_menu = get_selected_code_action_in_open_menu,
+  close_code_action_menu_window = close_code_action_menu_window,
 }
+
+return M

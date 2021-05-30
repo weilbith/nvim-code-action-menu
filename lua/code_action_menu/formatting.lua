@@ -1,9 +1,9 @@
-local function get_code_action_summaries(code_actions)
-  vim.validate({['code actions'] = { code_actions, 'table' }})
+local function get_all_code_action_summaries(all_code_actions)
+  vim.validate({['all code actions'] = { all_code_actions, 'table' }})
 
   local all_summaries = {}
 
-  for index, code_action in ipairs(code_actions) do
+  for index, code_action in ipairs(all_code_actions) do
     local preferred = (code_action.isPreferred or false) and '*' or ' '
     local key = '[' .. index .. ']'
     local kind = '(' .. (code_action.kind or 'empty') .. ')'
@@ -15,6 +15,13 @@ local function get_code_action_summaries(code_actions)
   return all_summaries
 end
 
+local function get_code_action_details(code_action)
+  vim.validate({['code action'] = { code_action, 'table' }})
+
+  return { code_action.title }
+end
+
 return {
-  get_code_action_summaries = get_code_action_summaries,
+  get_all_code_action_summaries = get_all_code_action_summaries,
+  get_code_action_details = get_code_action_details,
 }
