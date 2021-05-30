@@ -2,13 +2,7 @@ local function request_code_actions()
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
   local parameters = vim.lsp.util.make_range_params()
   parameters.context = { diagnostics = line_diagnostics }
-  local all_responses = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', parameters)
-
-  if all_responses == nil or vim.tbl_isempty(all_responses) then
-    vim.api.nvim_notify('No code actions available', vim.log.levels.WARN, {})
-    return
-  end
-
+  local all_responses = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', parameters) or {}
   local all_code_actions = {}
 
   for _, client_response in ipairs(all_responses) do
@@ -17,11 +11,7 @@ local function request_code_actions()
     end
   end
 
-  if #all_code_actions == 0 then
-    vim.api.nvim_notify('No code actions available', vim.log.levels.WARN, {})
-  else
-    return all_code_actions
-  end
+  return all_code_actions
 end
 
 local function execute_code_action(code_action)

@@ -11,6 +11,11 @@ local function get_buffer_width(buffer_number)
   return #longest_line
 end
 
+local function get_buffer_height(buffer_number)
+  local buffer_lines = vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
+  return #buffer_lines
+end
+
 local function set_window_options(window_number, window_options)
   vim.validate({['preview window number'] = { window_number, 'number' }})
   vim.validate({['preview window options'] = { window_options, 'table' }})
@@ -22,5 +27,6 @@ end
 
 return {
   get_buffer_width = get_buffer_width,
+  get_buffer_height = get_buffer_height,
   set_window_options = set_window_options,
 }

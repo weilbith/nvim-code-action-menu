@@ -1,18 +1,21 @@
 local lsp_requests = require('code_action_menu.lsp_requests')
 local MenuWindow = require('code_action_menu.windows.menu_window')
 local DetailsWindow = require('code_action_menu.windows.details_window')
+local WarningMessageWindow = require('code_action_menu.windows.warning_message_window')
 
 local menu_window_instance = nil
 local details_window_instance = nil
+local warning_message_window_instace = nil
 
 local function open_code_action_menu()
   local all_code_actions = lsp_requests.request_code_actions()
 
-  if all_code_actions ~= nil then
-    if menu_window_instance == nil then
-      menu_window_instance = MenuWindow:new()
-    end
-
+  if #all_code_actions == 0 then
+    warning_message_window_instace = WarningMessageWindow:new()
+    warning_message_window_instace:open()
+    vim.api.nvim_command('autocmd! CursorMoved <buffer> ++once lua require("code_action_menu").close_warning_message_window()')
+  else
+    menu_window_instance = MenuWindow:new()
     menu_window_instance:open(all_code_actions)
   end
 end
@@ -34,6 +37,11 @@ local function close_code_action_menu()
   menu_window_instance = nil
 end
 
+local function close_warning_message_window()
+  warning_message_window_instace:close()
+  warning_message_window_instace = nil
+end
+
 local function execute_selected_code_action()
   local selected_code_action = menu_window_instance:get_selected_code_action()
   close_code_action_menu() -- Close first to execute the action in the correct buffer.
@@ -43,6 +51,7 @@ end
 return {
   open_code_action_menu = open_code_action_menu,
   update_code_action_details = update_code_action_details,
-  execute_selected_code_action = execute_selected_code_action,
   close_code_action_menu = close_code_action_menu,
+  close_warning_message_window = close_warning_message_window,
+  execute_selected_code_action = execute_selected_code_action,
 }

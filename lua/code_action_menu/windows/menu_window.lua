@@ -39,9 +39,10 @@ function MenuWindow:open(all_code_actions)
 
   local buffer_number = create_menu_buffer(all_code_actions)
   local buffer_width = shared_utils.get_buffer_width(buffer_number) + 1
+  local buffer_height = shared_utils.get_buffer_height(buffer_number)
   local window_open_options = vim.lsp.util.make_floating_popup_options(
     buffer_width,
-    #all_code_actions,
+    buffer_height,
     { border = 'single' }
   )
   local window_number = vim.api.nvim_open_win(buffer_number, true, window_open_options)
