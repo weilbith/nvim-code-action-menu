@@ -24,10 +24,12 @@ local function update_code_action_details()
   local code_action = menu_window_instance:get_selected_code_action()
 
   if details_window_instance == nil then
-    details_window_instance = DetailsWindow:new()
+    details_window_instance = DetailsWindow:new(code_action)
+  else
+    details_window_instance.code_action = code_action
   end
 
-  details_window_instance:open_or_update(code_action, menu_window_instance.window_number)
+  details_window_instance:open({ docking_window_number = menu_window_instance.window_number })
 end
 
 local function close_code_action_menu()
