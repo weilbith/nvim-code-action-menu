@@ -1,12 +1,6 @@
-local M = {}
-package.loaded[...] = M
-
 local formatting_utils = require('code_action_menu.formatting')
-local menu_window = require('code_action_menu.menu_window')
 
-local code_action_details_window_number = -1
-
-local function create_buffer(code_action)
+local function create_details_buffer(code_action)
   vim.validate({['code action'] = { code_action, 'table' }})
 
   local buffer_number = vim.api.nvim_create_buf(false, true)
@@ -19,14 +13,13 @@ local function create_buffer(code_action)
   return buffer_number
 end
 
-local function open_details_window(buffer_number, details_window_height)
-  vim.inspect({['details buffer number'] = { buffer_number, 'number' }})
+local function open_details_window(menu_window_number, details_window_height, buffer_number)
+  vim.inspect({['menu window number'] = { menu_window_number, 'number' }})
   vim.inspect({['details window height'] = { details_window_height, 'number' }})
-
-  local menu_window_number = menu_window.code_action_menu_window_number
+  vim.inspect({['details buffer number'] = { buffer_number, 'number' }})
 
   if menu_window_number == -1 then
-    error('Can not open code action details window without a code action menu!')
+    error('Can not open code action details window without a menu!')
   end
 
   -- Do not use window position as it is wrong at this point in time.
@@ -43,7 +36,7 @@ local function open_details_window(buffer_number, details_window_height)
   if open_space_bottom >= details_window_height then
     details_window_row = menu_window_row + border_height_of_two_windows + 1
   else
-    details_window_row = menu_window_row - details_window_height -  border_height_of_two_windows + 1
+    details_window_row = menu_window_row - details_window_height - border_height_of_two_windows + 1
   end
 
   local window_open_options = {
@@ -61,31 +54,33 @@ local function open_details_window(buffer_number, details_window_height)
 end
 
 
--- Meant to be executed from the menu window.
-local function open_or_update_code_action_details_window()
-  -- TODO: change this when the loading order of the Lua modules got fixed.
-  -- local selected_code_action = menu_window.get_selected_code_action_in_open_menu()
-  local all_code_actions = vim.api.nvim_win_get_var(menu_window.code_action_menu_window_number, 'all_code_actions')
-  local cursor = vim.api.nvim_win_get_cursor(menu_window.code_action_menu_window_number)
-  local line = cursor[1]
-  local selected_code_action = all_code_actions[line]
-  local buffer_number = create_buffer(selected_code_action)
+DetailsWindow = { window_number = -1 }
 
-  if code_action_details_window_number == -1 then
-    code_action_details_window_number = open_details_window(buffer_number, 5)
+function DetailsWindow:new()
+  local instance = {}
+  setmetatable(instance, self)
+  self.__index = self
+  return instance
+end
+
+function DetailsWindow:open_or_update(code_action, menu_window_number)
+  vim.validate({['code action'] = { code_action, 'table' }})
+  vim.validate({['menu window number'] = { menu_window_number, 'number' }})
+
+  local buffer_number = create_details_buffer(code_action)
+  local buffer_height = #vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
+
+  if self.window_number == -1 then
+    self.window_number = open_details_window(menu_window_number, buffer_height, buffer_number)
   else
-    vim.api.nvim_win_set_buf(code_action_details_window_number, buffer_number)
+    vim.api.nvim_win_set_buf(self.window_number, buffer_number)
+    vim.api.nvim_win_set_height(self.window_number, buffer_height)
   end
 end
 
-local function close_code_action_details_window()
-  pcall(vim.api.nvim_win_close, code_action_details_window_number, true)
-  code_action_details_window_number = -1
+function DetailsWindow:close()
+  pcall(vim.api.nvim_win_close, self.window_number, true)
+  self.window_number = -1
 end
 
-M = {
-  open_or_update_code_action_details_window = open_or_update_code_action_details_window,
-  close_code_action_details_window = close_code_action_details_window,
-}
-
-return M
+return DetailsWindow
