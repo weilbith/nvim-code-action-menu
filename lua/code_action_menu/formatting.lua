@@ -1,3 +1,15 @@
+local function get_action_kind(code_action)
+  vim.validate({['code action'] = { code_action, 'table' }})
+
+  if code_action.kind ~= nil then
+    return code_action.kind
+  elseif code_action.edit then
+    return 'workspace edit'
+  else
+    return 'command'
+  end
+end
+
 local function get_all_code_action_summaries(all_code_actions)
   vim.validate({['all code actions'] = { all_code_actions, 'table' }})
 
@@ -6,7 +18,7 @@ local function get_all_code_action_summaries(all_code_actions)
   for index, code_action in ipairs(all_code_actions) do
     local preferred = (code_action.isPreferred or false) and '*' or ' '
     local key = '[' .. index .. ']'
-    local kind = '(' .. (code_action.kind or 'empty') .. ')'
+    local kind = '(' .. get_action_kind(code_action) .. ')'
     local title = code_action.title
     local summary = preferred .. key .. ' ' .. kind .. ' ' .. title
     table.insert(all_summaries, summary)
