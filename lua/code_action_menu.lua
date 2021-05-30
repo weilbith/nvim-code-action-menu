@@ -15,8 +15,8 @@ local function open_code_action_menu()
     warning_message_window_instace:open()
     vim.api.nvim_command('autocmd! CursorMoved <buffer> ++once lua require("code_action_menu").close_warning_message_window()')
   else
-    menu_window_instance = MenuWindow:new()
-    menu_window_instance:open(all_code_actions)
+    menu_window_instance = MenuWindow:new(all_code_actions)
+    menu_window_instance:open()
   end
 end
 

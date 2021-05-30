@@ -27,17 +27,18 @@ end
 
 local MenuWindow = BaseWindow:new()
 
-function MenuWindow:new()
+function MenuWindow:new(all_code_actions)
+  vim.validate({['all code actions'] = { all_code_actions, 'table' }})
+
   local instance = BaseWindow:new()
   setmetatable(instance, self)
   self.__index = self
+  self.all_code_actions = all_code_actions
   return instance
 end
 
-function MenuWindow:open(all_code_actions)
-  vim.validate({['all code actions'] = { all_code_actions, 'table' }})
-
-  local buffer_number = create_menu_buffer(all_code_actions)
+function MenuWindow:open()
+  local buffer_number = create_menu_buffer(self.all_code_actions)
   local buffer_width = shared_utils.get_buffer_width(buffer_number) + 1
   local buffer_height = shared_utils.get_buffer_height(buffer_number)
   local window_open_options = vim.lsp.util.make_floating_popup_options(
@@ -46,7 +47,6 @@ function MenuWindow:open(all_code_actions)
     { border = 'single' }
   )
   local window_number = vim.api.nvim_open_win(buffer_number, true, window_open_options)
-  vim.api.nvim_win_set_var(window_number, 'all_code_actions', all_code_actions)
   shared_utils.set_window_options(window_number, window_set_options)
   self.window_number = window_number
 end
@@ -55,10 +55,9 @@ function MenuWindow:get_selected_code_action()
   if self.window_number == -1 then
     error('Can not retrieve selected code action when menu is not open!')
   else
-    local all_code_actions = vim.api.nvim_win_get_var(self.window_number, 'all_code_actions')
     local cursor = vim.api.nvim_win_get_cursor(self.window_number)
     local line = cursor[1]
-    return all_code_actions[line]
+    return self.all_code_actions[line]
   end
 end
 
