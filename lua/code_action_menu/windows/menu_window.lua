@@ -1,5 +1,6 @@
 local formatting_utils = require('code_action_menu.formatting')
 local shared_utils = require('code_action_menu.shared_utils')
+local BaseWindow = require('code_action_menu.windows.base_window')
 
 local window_set_options = {
   scrolloff = 0,
@@ -24,10 +25,10 @@ local function create_menu_buffer(all_code_actions)
 end
 
 
-local MenuWindow = { window_number = -1 }
+local MenuWindow = BaseWindow:new()
 
 function MenuWindow:new()
-  local instance = {}
+  local instance = BaseWindow:new()
   setmetatable(instance, self)
   self.__index = self
   return instance
@@ -47,11 +48,6 @@ function MenuWindow:open(all_code_actions)
   vim.api.nvim_win_set_var(window_number, 'all_code_actions', all_code_actions)
   shared_utils.set_window_options(window_number, window_set_options)
   self.window_number = window_number
-end
-
-function MenuWindow:close()
-  pcall(vim.api.nvim_win_close, self.window_number, true)
-  self.window_number = -1
 end
 
 function MenuWindow:get_selected_code_action()

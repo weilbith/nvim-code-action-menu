@@ -1,6 +1,6 @@
 local lsp_requests = require('code_action_menu.lsp_requests')
-local MenuWindow = require('code_action_menu.menu_window')
-local DetailsWindow = require('code_action_menu.details_window')
+local MenuWindow = require('code_action_menu.windows.menu_window')
+local DetailsWindow = require('code_action_menu.windows.details_window')
 
 local menu_window_instance = nil
 local details_window_instance = nil
@@ -27,15 +27,17 @@ local function update_code_action_details()
   details_window_instance:open_or_update(code_action, menu_window_instance.window_number)
 end
 
-local function execute_selected_code_action()
-  local selected_code_action = menu_window_instance:get_selected_code_action()
-  menu_window_instance:close() -- Close first to execute the action in the correct buffer.
-  lsp_requests.execute_code_action(selected_code_action)
-end
-
 local function close_code_action_menu()
   details_window_instance:close()
+  details_window_instance = nil
   menu_window_instance:close()
+  menu_window_instance = nil
+end
+
+local function execute_selected_code_action()
+  local selected_code_action = menu_window_instance:get_selected_code_action()
+  close_code_action_menu() -- Close first to execute the action in the correct buffer.
+  lsp_requests.execute_code_action(selected_code_action)
 end
 
 return {

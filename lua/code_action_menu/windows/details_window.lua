@@ -1,4 +1,5 @@
 local formatting_utils = require('code_action_menu.formatting')
+local BaseWindow = require('code_action_menu.windows.base_window')
 
 local function create_details_buffer(code_action)
   vim.validate({['code action'] = { code_action, 'table' }})
@@ -54,10 +55,10 @@ local function open_details_window(menu_window_number, details_window_height, bu
 end
 
 
-DetailsWindow = { window_number = -1 }
+DetailsWindow = BaseWindow:new()
 
 function DetailsWindow:new()
-  local instance = {}
+  local instance = BaseWindow:new()
   setmetatable(instance, self)
   self.__index = self
   return instance
@@ -76,11 +77,6 @@ function DetailsWindow:open_or_update(code_action, menu_window_number)
     vim.api.nvim_win_set_buf(self.window_number, buffer_number)
     vim.api.nvim_win_set_height(self.window_number, buffer_height)
   end
-end
-
-function DetailsWindow:close()
-  pcall(vim.api.nvim_win_close, self.window_number, true)
-  self.window_number = -1
 end
 
 return DetailsWindow
