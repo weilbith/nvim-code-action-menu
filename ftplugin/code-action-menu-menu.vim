@@ -1,6 +1,4 @@
-setlocal readonly
-setlocal nomodifiable
-setlocal bufhidden=wipe
+runtime! ftplugin/code-action-menu.vim ftplugin/code-action-menu_*.vim ftplugin/code-action-menu/*.vim
 
 nnoremap <buffer> <CR> <cmd>lua require('code_action_menu').execute_selected_code_action()<CR>
 nnoremap <buffer> <Esc> <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
