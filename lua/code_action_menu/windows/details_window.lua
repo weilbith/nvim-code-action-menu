@@ -1,27 +1,20 @@
-local formatting_utils = require('code_action_menu.formatting')
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
 DetailsWindow = BaseWindow:new()
 
-function DetailsWindow:new(code_action)
-  vim.validate({['details window code action'] = { code_action, 'table' }})
+function DetailsWindow:new(action)
+  vim.validate({['details window action'] = { action, 'table' }})
 
-  local instance = BaseWindow:new()
+  local instance = BaseWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
-  self.code_action = code_action
   return instance
 end
 
 function DetailsWindow:create_buffer()
   local buffer_number = vim.api.nvim_create_buf(false, true)
-
-  local details = {}
-
-  if self.code_action ~= nil then
-    details = formatting_utils.get_code_action_details(self.code_action)
-  end
+  local details = self.action:get_details()
 
   vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, details)
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-details')
@@ -35,7 +28,7 @@ function DetailsWindow:get_window_configuration(buffer_number, configuration_opt
   vim.validate({['window number to dock details'] = { configuration_options.docking_window_number, 'number' }})
 
   if configuration_options.docking_window_number == -1 then
-    error('The code action window must be docked to another window!')
+    error('The code action details window must be docked to another window!')
   end
 
   -- Do not use window position as it is wrong at this point in time.

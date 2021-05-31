@@ -6,8 +6,8 @@ local BaseWindow = {
   window_set_options = {}
 }
 
-function BaseWindow:new()
-  local instance = {}
+function BaseWindow:new(base_object)
+  local instance = base_object or {}
   setmetatable(instance, self)
   self.__index = self
   return instance
