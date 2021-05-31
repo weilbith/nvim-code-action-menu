@@ -45,15 +45,15 @@ function DetailsWindow:get_window_configuration(buffer_number, configuration_opt
   local docking_window_height = docking_window_configuration.height
   local docking_window_width = docking_window_configuration.width
   local editor_height = vim.api.nvim_get_option('lines')
-  local border_height_of_two_windows = 4
-  local open_space_bottom = editor_height - docking_window_row - docking_window_height - border_height_of_two_windows
+  local window_border_height = 2
+  local open_space_bottom = editor_height - docking_window_row - docking_window_height - window_border_height
   local details_window_height = shared_utils.get_buffer_height(buffer_number)
   local details_window_row = 0
 
   if open_space_bottom >= details_window_height then
-    details_window_row = docking_window_row + border_height_of_two_windows + 2
+    details_window_row = docking_window_row + docking_window_height + window_border_height + 1
   else
-    details_window_row = docking_window_row - details_window_height - border_height_of_two_windows
+    details_window_row = docking_window_row - details_window_height - window_border_height
   end
 
   return {
