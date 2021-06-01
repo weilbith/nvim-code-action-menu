@@ -17,7 +17,7 @@ function BaseWindow:create_buffer()
   return vim.api.nvim_create_buf(false, true)
 end
 
-function BaseWindow:get_window_configuration(buffer_number)
+function BaseWindow:get_window_configuration(buffer_number, _)
   vim.validate({['buffer number to create window for'] = { buffer_number, 'number' }})
 
   local buffer_width = shared_utils.get_buffer_width(buffer_number) + 1
@@ -34,6 +34,7 @@ function BaseWindow:open(window_configuration_options)
 
   local buffer_number = self:create_buffer()
   local window_configuration = self:get_window_configuration(buffer_number, window_configuration_options)
+
   if self.window_number == -1 then
     self.window_number = vim.api.nvim_open_win(buffer_number, self.focusable, window_configuration)
     shared_utils.set_window_options(self.window_number, self.window_set_options)

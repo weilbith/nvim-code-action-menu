@@ -29,9 +29,11 @@ local function set_window_options(window_number, window_options)
   end
 end
 
-local function request_servers_for_actions()
+local function request_servers_for_actions(use_range)
+  vim.validate({['request action for range'] = { use_range, 'boolean', true }})
+
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
-  local parameters = vim.lsp.util.make_range_params()
+  local parameters = use_range and vim.lsp.util.make_given_range_params() or vim.lsp.util.make_range_params()
   parameters.context = { diagnostics = line_diagnostics }
   local all_responses = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', parameters) or {}
   local all_actions = {}

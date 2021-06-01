@@ -8,7 +8,8 @@ local details_window_instance = nil
 local warning_message_window_instace = nil
 
 local function open_code_action_menu()
-  local all_actions = shared_utils.request_servers_for_actions()
+  local use_range = vim.api.nvim_get_mode().mode ~= 'n'
+  local all_actions = shared_utils.request_servers_for_actions(use_range)
 
   if #all_actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()

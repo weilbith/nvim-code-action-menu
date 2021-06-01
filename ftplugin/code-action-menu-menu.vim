@@ -14,3 +14,5 @@ nnoremap <buffer> <Esc> <cmd>lua require('code_action_menu').close_code_action_m
 nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
 
 autocmd! CursorMoved <buffer> lua require('code_action_menu').update_action_details()
+
+call feedkeys('<Esc>') " Escape eventual active visual mode
