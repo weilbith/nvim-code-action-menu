@@ -57,7 +57,7 @@ function CodeAction:execute()
   elseif self:is_command() then
     vim.lsp.buf.execute_command(self.server_data.command)
   else
-    error('Failed to execute code action of unknown kind!')
+    vim.api.nvim_notify('Failed to execute code action of unknown kind!', vim.log.levels.ERROR, {})
   end
 end
 

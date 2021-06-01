@@ -47,8 +47,13 @@ end
 
 local function execute_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
-  close_code_action_menu() -- Close first to execute the action in the correct buffer.
-  selected_action:execute()
+
+  if selected_action:is_disabled() then
+    vim.api.nvim_notify('Can not execute disabled action!', vim.log.levels.ERROR, {})
+  else
+    close_code_action_menu() -- Close first to execute the action in the correct buffer.
+    selected_action:execute()
+  end
 end
 
 local function select_line_and_execute_action(line_number)
