@@ -5,7 +5,7 @@ local window_set_options = {
   scrolloff = 0,
   wrap = false,
   cursorline = true,
-  winhighlight = 'CursorLine:CodeActionMenuSelection',
+  winhighlight = 'CursorLine:CodeActionMenuMenuSelection',
   winfixheight = true,
   winfixwidth = true,
 }

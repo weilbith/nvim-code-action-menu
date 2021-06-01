@@ -35,17 +35,20 @@ end
 
 function BaseAction:get_summary()
   local kind = '(' .. self:get_kind() .. ')'
-  return kind .. ' ' .. self:get_title()
+  local disabled = self:is_disabled() and ' [disabled]' or ''
+  return kind .. ' ' .. self:get_title() .. disabled
 end
 
 function BaseAction:get_details()
+  local preferred = self:is_preferred() and 'yes' or 'no'
+  local disabled = self:is_disabled() and ('yes - ' .. self:get_disabled_reason()) or 'no'
   return {
     self.server_data.title,
     '',
     'Kind:        ' .. self:get_kind(),
     'Name:        ' .. self:get_name(),
-    'Preferred:   ' .. (self:is_preferred() and 'yes' or 'no'),
-    'Disabled:    ' .. (self:is_disabled() and ('yes - ' .. self:get_disabled_reason()) or 'no'),
+    'Preferred:   ' .. preferred,
+    'Disabled:    ' .. disabled,
   }
 end
 
