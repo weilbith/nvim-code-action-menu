@@ -10,11 +10,27 @@ function BaseAction:new(server_data)
 end
 
 function BaseAction:get_title()
-  return (self.server_data or {}).title or 'missing title'
+  return self.server_data.title or 'missing title'
 end
 
 function BaseAction:get_kind()
-  return 'undefined' -- meant to be overwritten by derivations
+  return 'undefined'
+end
+
+function BaseAction:get_name()
+  return 'undefined'
+end
+
+function BaseAction:get_disabled_reason()
+  return 'undefined'
+end
+
+function BaseAction:is_preferred()
+  return false
+end
+
+function BaseAction:is_disabled()
+  return false
 end
 
 function BaseAction:get_summary()
@@ -23,15 +39,13 @@ function BaseAction:get_summary()
 end
 
 function BaseAction:get_details()
-  -- TODO: replace mocked data
   return {
     self.server_data.title,
     '',
-    'Kind:       ' .. self:get_kind(),
-    'Preferred:  ' .. 'yes',
-    'Fixes:      - missing import for "foo"',
-    '            - can not find declaration for this stupid',
-    '              what ever this is',
+    'Kind:        ' .. self:get_kind(),
+    'Name:        ' .. self:get_name(),
+    'Preferred:   ' .. (self:is_preferred() and 'yes' or 'no'),
+    'Disabled:    ' .. (self:is_disabled() and ('yes - ' .. self:get_disabled_reason()) or 'no'),
   }
 end
 

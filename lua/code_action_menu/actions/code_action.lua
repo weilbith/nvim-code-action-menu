@@ -10,11 +10,13 @@ function CodeAction:new(server_data)
 end
 
 function CodeAction:is_workspace_edit()
-  return self.server_data.edit ~= nil and type(self.server_data.edit) == 'table'
+  local edit = self.server_data.edit
+  return type(edit) == 'table'
 end
 
 function CodeAction:is_command()
-  return self.server_data.command ~= nil and type(self.server_data.command) == 'table'
+  local command = self.server_data.command
+  return type(command) == 'table'
 end
 
 function CodeAction:get_kind()
@@ -25,8 +27,28 @@ function CodeAction:get_kind()
   elseif self:is_command() then
     return 'command'
   else
-    return 'unknown'
+    return 'undefined'
   end
+end
+
+function CodeAction:get_name()
+  if self:is_command() then
+    return self.server_data.command.command
+  else
+    return 'undefined'
+  end
+end
+
+function CodeAction:is_preferred()
+  return self.server_data.isPreferred or false
+end
+
+function CodeAction:is_disabled()
+  return self.server_data.disabled ~= nil
+end
+
+function CodeAction:get_disabled_reason()
+  return self.server_data.disabled.reason
 end
 
 function CodeAction:execute()
