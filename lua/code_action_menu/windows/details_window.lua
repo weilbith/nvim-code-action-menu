@@ -1,6 +1,25 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
+local function format_details_for_action(action)
+  vim.validate({['action to format details for'] = { action, 'table' }})
+
+  local title = action:get_title()
+  local kind = action:get_kind()
+  local name  = action:get_name()
+  local preferred = action:is_preferred() and 'yes' or 'no'
+  local disabled = action:is_disabled() and ('yes - ' .. action:get_disabled_reason()) or 'no'
+
+  return {
+    title,
+    '',
+    'Kind:        ' .. kind,
+    'Name:        ' .. name,
+    'Preferred:   ' .. preferred,
+    'Disabled:    ' .. disabled,
+  }
+end
+
 DetailsWindow = BaseWindow:new()
 
 function DetailsWindow:new(action)
@@ -14,7 +33,7 @@ end
 
 function DetailsWindow:create_buffer()
   local buffer_number = vim.api.nvim_create_buf(false, true)
-  local details = self.action:get_details()
+  local details = format_details_for_action(self.action)
 
   vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, details)
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-details')

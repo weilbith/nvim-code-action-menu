@@ -10,6 +10,16 @@ local window_set_options = {
   winfixwidth = true,
 }
 
+local function format_summary_for_action(action, index)
+  vim.validate({['action to format summary for'] = { action, 'table' }})
+
+  local formatted_index = ' [' .. index .. ']'
+  local kind = '(' .. action:get_kind() .. ')'
+  local disabled = action:is_disabled() and ' [disabled]' or ''
+  local title = action:get_title()
+  return formatted_index .. ' ' .. kind .. ' ' .. title .. disabled
+end
+
 local MenuWindow = BaseWindow:new()
 
 function MenuWindow:new(all_actions)
@@ -31,8 +41,7 @@ function MenuWindow:create_buffer()
   local buffer_content = {}
 
   for index, action in shared_utils.iterate_actions_ordered(self.all_actions) do
-    local formatted_index = ' [' .. index .. ']'
-    local line = formatted_index .. ' ' .. action:get_summary()
+    local line = format_summary_for_action(action, index)
     table.insert(buffer_content, line)
   end
 
