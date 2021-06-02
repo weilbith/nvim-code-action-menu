@@ -30,7 +30,7 @@ function MenuWindow:create_buffer()
   local buffer_number = vim.api.nvim_create_buf(false, true)
   local buffer_content = {}
 
-  for index, action in ipairs(self.all_actions) do
+  for index, action in shared_utils.iterate_actions_ordered(self.all_actions) do
     local formatted_index = ' [' .. index .. ']'
     local line = formatted_index .. ' ' .. action:get_summary()
     table.insert(buffer_content, line)
@@ -79,7 +79,7 @@ function MenuWindow:get_selected_action()
   else
     local cursor = vim.api.nvim_win_get_cursor(self.window_number)
     local line = cursor[1]
-    return self.all_actions[line]
+    return shared_utils.get_action_at_index_ordered(self.all_actions, line)
   end
 end
 
