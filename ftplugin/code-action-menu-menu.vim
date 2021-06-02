@@ -15,4 +15,7 @@ nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu(
 
 autocmd! CursorMoved <buffer> lua require('code_action_menu').update_action_details()
 
-call feedkeys('<Esc>') " Escape eventual active visual mode
+" TODO: I think the below code works because it causes an error as the buffer
+" not modifiable. The actual proper key sequence does not work. Keep it until
+" have proper solution to escape visual mode.
+silent! call feedkeys('\<Esc>', 't') " Escape eventual active visual mode
