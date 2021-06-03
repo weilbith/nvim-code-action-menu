@@ -14,7 +14,7 @@ function Command:get_kind()
 end
 
 function Command:get_name()
-  return self.server_data.command
+  return self.server_data.command or 'undefined'
 end
 
 function Command:execute()

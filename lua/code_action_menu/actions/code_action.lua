@@ -21,7 +21,8 @@ end
 
 function CodeAction:get_kind()
   if self.server_data.kind ~= nil then
-    return self.server_data.kind
+    local kind = self.server_data.kind
+    return kind == '' and 'undefined' or kind
   elseif self:is_workspace_edit() then
     return 'workspace edit'
   elseif self:is_command() then
