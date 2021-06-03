@@ -39,7 +39,7 @@ local function request_servers_for_actions(use_range)
   local all_actions = {}
 
   for _, client_response in ipairs(all_responses) do
-    for _, data in ipairs(client_response.result) do
+    for _, data in ipairs(client_response.result or {}) do
       local action = nil
 
       if type(data.edit) == 'table' or type(data.command) == 'table' then
@@ -64,9 +64,9 @@ local function order_actions(action_table, key_a, key_b)
   elseif action_a:is_disabled() and not action_b:is_disabled() then
     return false
   else
-    return true
+    -- Ordering function needs to return `true` at some point for every element.
+    return key_a < key_b
   end
-
 end
 
 local function get_ordered_action_table_keys(action_table)
