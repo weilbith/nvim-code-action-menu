@@ -80,4 +80,10 @@ function DetailsWindow:get_window_configuration(buffer_number, configuration_opt
   }
 end
 
+function DetailsWindow:set_action(action)
+  vim.validate({['updated details window action'] = { action, 'table' }})
+
+  self.action = action
+end
+
 return DetailsWindow

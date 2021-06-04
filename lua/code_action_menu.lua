@@ -27,7 +27,7 @@ local function update_action_details()
   if details_window_instance == nil then
     details_window_instance = DetailsWindow:new(selected_action)
   else
-    details_window_instance.action = selected_action
+    details_window_instance:set_action(selected_action)
   end
 
   details_window_instance:open({ docking_window_number = menu_window_instance.window_number })
