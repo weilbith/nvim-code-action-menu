@@ -3,6 +3,7 @@ syntax keyword CodeActionMenuDetailsLabel Kind:
 syntax keyword CodeActionMenuDetailsLabel Name:
 syntax keyword CodeActionMenuDetailsLabel Preferred: nextgroup=CodeActionMenuDetailsPreferred skipwhite
 syntax keyword CodeActionMenuDetailsLabel Disabled: nextgroup=CodeActionMenuDetailsDisabled skipwhite
+syntax keyword CodeActionMenuDetailsLabel Changes:
 syntax match CodeActionMenuDetailsPreferred 'yes' contained
 syntax match CodeActionMenuDetailsDisabled 'yes.*' contained
 syntax keyword CodeActionMenuDetailsUndefined undefined

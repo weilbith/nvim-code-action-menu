@@ -1,4 +1,6 @@
-local BaseAction = require('code_action_menu.actions.base_action')
+local BaseAction = require('code_action_menu.lsp_objects.actions.base_action')
+local TextDocumentEdit = require('code_action_menu.lsp_objects.edits.text_document_edit')
+local TextEdit = require('code_action_menu.lsp_objects.edits.text_edit')
 
 local CodeAction = BaseAction:new({})
 
@@ -6,6 +8,11 @@ function CodeAction:new(server_data)
   local instance = BaseAction:new(server_data)
   setmetatable(instance, self)
   self.__index = self
+
+  if server_data.diagnostics ~= nil then
+    print(vim.inspect(server_data.diagnostics))
+  end
+
   return instance
 end
 
@@ -20,9 +27,8 @@ function CodeAction:is_command()
 end
 
 function CodeAction:get_kind()
-  if self.server_data.kind ~= nil then
-    local kind = self.server_data.kind
-    return kind == '' and 'undefined' or kind
+  if type(self.server_data.kind) == 'string' and #self.server_data.kind > 0 then
+    return self.server_data.kind
   elseif self:is_workspace_edit() then
     return 'workspace edit'
   elseif self:is_command() then
@@ -50,6 +56,24 @@ end
 
 function CodeAction:get_disabled_reason()
   return self.server_data.disabled.reason
+end
+
+function CodeAction:get_edits()
+  local all_edits = {}
+
+  if self:is_workspace_edit() then
+    for _, data in ipairs(self.server_data.edit.documentChanges or {}) do
+      local text_document_edit = TextDocumentEdit:new(data)
+      table.insert(all_edits, text_document_edit)
+    end
+
+    for uri, payload in ipairs(self.server_data.edit.changes or {}) do
+      local text_edit = TextEdit:new(uri, payload)
+      table.insert(all_edits, text_edit)
+    end
+  end
+
+  return all_edits
 end
 
 function CodeAction:execute()

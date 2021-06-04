@@ -33,6 +33,10 @@ function BaseAction:is_disabled()
   return false
 end
 
+function BaseAction:get_edits()
+  return {}
+end
+
 function BaseAction:execute()
   error('Base actions can not be executed, but derived classes have to implement it!')
 end

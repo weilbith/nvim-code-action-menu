@@ -1,6 +1,19 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
+local function get_paths_for_changing_files_action_action(action)
+  local all_file_paths = {}
+
+  for _, edit in ipairs(action:get_edits()) do
+    for _, uri in ipairs(edit:get_included_uris()) do
+      local file_path = shared_utils.uri_to_relative_path(uri)
+      table.insert(all_file_paths, file_path)
+    end
+  end
+
+  return all_file_paths
+end
+
 local function format_details_for_action(action)
   vim.validate({['action to format details for'] = { action, 'table' }})
 
@@ -10,7 +23,7 @@ local function format_details_for_action(action)
   local preferred = action:is_preferred() and 'yes' or 'no'
   local disabled = action:is_disabled() and ('yes - ' .. action:get_disabled_reason()) or 'no'
 
-  return {
+  local details = {
     title,
     '',
     'Kind:        ' .. kind,
@@ -18,6 +31,18 @@ local function format_details_for_action(action)
     'Preferred:   ' .. preferred,
     'Disabled:    ' .. disabled,
   }
+
+  local file_paths = get_paths_for_changing_files_action_action(action)
+
+  if #file_paths ~= 0 then
+    table.insert(details, 'Changes:     - ' .. file_paths[1])
+  end
+
+  for index = 2, #file_paths do
+    table.insert(details, '             - ' .. file_paths[index])
+  end
+
+  return details
 end
 
 DetailsWindow = BaseWindow:new()
