@@ -13,9 +13,8 @@ nnoremap <buffer> 9 <cmd>lua require('code_action_menu').select_line_and_execute
 nnoremap <buffer> <Esc> <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
 nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
 
-autocmd! CursorMoved <buffer> lua require('code_action_menu').update_action_details()
+" Fixes awkward visual selection (is it?) for range code actions.
+" Do this before the CursorMoved auto-command.
+call feedkeys('jk')
 
-" TODO: I think the below code works because it causes an error as the buffer
-" not modifiable. The actual proper key sequence does not work. Keep it until
-" have proper solution to escape visual mode.
-silent! call feedkeys('\<Esc>', 't') " Escape eventual active visual mode
+autocmd! CursorMoved <buffer> lua require('code_action_menu').update_action_details()
