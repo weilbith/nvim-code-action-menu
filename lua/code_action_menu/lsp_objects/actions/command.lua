@@ -1,5 +1,6 @@
 local BaseAction = require('code_action_menu.lsp_objects.actions.base_action')
 local TextDocumentEdit = require('code_action_menu.lsp_objects.edits.text_document_edit')
+local WorkspaceEdit = require('code_action_menu.lsp_objects.edits.workspace_edit')
 
 local Command = BaseAction:new({})
 
@@ -21,17 +22,17 @@ end
 -- Though commands do nowdays actually not include edits anymore, some LSP
 -- servers still use them like that. This can be detected by inspecting the
 -- commands arguments.
-function Command:get_edits()
-  local all_edits = {}
+function Command:get_workspace_edit()
+  local workspace_edit = WorkspaceEdit:new()
 
   for _, argument in ipairs(self.server_data.arguments or {}) do
     for _, data in ipairs(argument.documentChanges or {}) do
-      local text_document_edit = TextDocumentEdit:new(data)
-      table.insert(all_edits, text_document_edit)
+      local text_document_edit = TextDocumentEdit:new(data.textDocument.uri, data.edits)
+      workspace_edit:add_text_document_edit(text_document_edit)
     end
   end
 
-  return all_edits
+  return workspace_edit
 end
 
 function Command:execute()

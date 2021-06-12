@@ -1,6 +1,6 @@
 local BaseAction = require('code_action_menu.lsp_objects.actions.base_action')
 local TextDocumentEdit = require('code_action_menu.lsp_objects.edits.text_document_edit')
-local TextEdit = require('code_action_menu.lsp_objects.edits.text_edit')
+local WorkspaceEdit = require('code_action_menu.lsp_objects.edits.workspace_edit')
 
 local CodeAction = BaseAction:new({})
 
@@ -58,22 +58,22 @@ function CodeAction:get_disabled_reason()
   return self.server_data.disabled.reason
 end
 
-function CodeAction:get_edits()
-  local all_edits = {}
+function CodeAction:get_workspace_edit()
+  local workspace_edit = WorkspaceEdit:new()
 
   if self:is_workspace_edit() then
     for _, data in ipairs(self.server_data.edit.documentChanges or {}) do
-      local text_document_edit = TextDocumentEdit:new(data)
-      table.insert(all_edits, text_document_edit)
+      local text_document_edit = TextDocumentEdit:new(data.textDocument.uri, data.edits)
+      workspace_edit:add_text_document_edit(text_document_edit)
     end
 
-    for uri, payload in ipairs(self.server_data.edit.changes or {}) do
-      local text_edit = TextEdit:new(uri, payload)
-      table.insert(all_edits, text_edit)
+    for uri, edits in ipairs(self.server_data.edit.changes or {}) do
+      local text_document_edit = TextDocumentEdit:new(uri, edits)
+      workspace_edit:add_text_document_edit(text_document_edit)
     end
   end
 
-  return all_edits
+  return workspace_edit
 end
 
 function CodeAction:execute()

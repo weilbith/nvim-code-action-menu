@@ -1,3 +1,5 @@
+local WorkspaceEdit = require('code_action_menu.lsp_objects.edits.workspace_edit')
+
 local BaseAction = {}
 
 function BaseAction:new(server_data)
@@ -33,8 +35,8 @@ function BaseAction:is_disabled()
   return false
 end
 
-function BaseAction:get_edits()
-  return {}
+function BaseAction:get_workspace_edit()
+  return WorkspaceEdit:new()
 end
 
 function BaseAction:execute()

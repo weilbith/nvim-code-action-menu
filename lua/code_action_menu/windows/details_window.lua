@@ -1,17 +1,17 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
-local function get_paths_for_changing_files_action_action(action)
-  local all_file_paths = {}
+local function get_changing_file_paths_of_action(action)
+  local workspace_edit = action:get_workspace_edit()
+  local all_text_document_edits = workspace_edit:get_all_text_document_edits()
+  local all_changing_file_paths = {}
 
-  for _, edit in ipairs(action:get_edits()) do
-    for _, uri in ipairs(edit:get_included_uris()) do
-      local file_path = shared_utils.uri_to_relative_path(uri)
-      table.insert(all_file_paths, file_path)
-    end
+  for _, text_document_edit in ipairs(all_text_document_edits) do
+    local file_path = text_document_edit:get_document_path()
+    table.insert(all_changing_file_paths, file_path)
   end
 
-  return all_file_paths
+  return all_changing_file_paths
 end
 
 local function format_details_for_action(action)
@@ -32,7 +32,7 @@ local function format_details_for_action(action)
     'Disabled:    ' .. disabled,
   }
 
-  local file_paths = get_paths_for_changing_files_action_action(action)
+  local file_paths = get_changing_file_paths_of_action(action)
 
   if #file_paths ~= 0 then
     table.insert(details, 'Changes:     - ' .. file_paths[1])

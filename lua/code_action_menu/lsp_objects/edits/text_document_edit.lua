@@ -1,20 +1,33 @@
-local BaseEdit = require('code_action_menu.lsp_objects.edits.base_edit')
+local TextDocumentEdit = {}
 
-local TextDocumentEdit = BaseEdit:new({})
+function TextDocumentEdit:new(uri, edits)
+  vim.validate({['text document uri'] = { uri, 'string' }})
+  vim.validate({['text document edits'] = { edits, 'table' }})
 
-function TextDocumentEdit:new(server_data)
-  vim.validate({['server data to parse as text document edit'] = { server_data, 'table' }})
-  vim.validate({['text document property'] = { server_data.textDocument, 'table' }})
-  vim.validate({['edits property'] = { server_data.edits, 'table' }})
-
-  local instance = BaseEdit:new({ server_data = server_data })
+  local instance = { uri = uri, edits = edits }
   setmetatable(instance, self)
   self.__index = self
   return instance
 end
 
-function TextDocumentEdit:get_included_uris()
-  return { self.server_data.textDocument.uri }
+function TextDocumentEdit:add_edits(edits)
+  vim.validate({['text document edits'] = { edits, 'table' }})
+
+  vim.list_extend(self.edits, edits)
+end
+
+function TextDocumentEdit:get_document_path()
+  local absolute_path = vim.uri_to_fname(self.uri)
+  local current_working_directory = vim.api.nvim_call_function('getcwd', {})
+  local home_directory = os.getenv("HOME")
+
+  if absolute_path:find(current_working_directory, 1, true) then
+    return absolute_path:sub(current_working_directory:len() + 2)
+  elseif absolute_path:find(home_directory, 1, true) then
+    return absolute_path:sub(home_directory:len() + 2)
+  else
+    return absolute_path
+  end
 end
 
 return TextDocumentEdit

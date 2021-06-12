@@ -108,22 +108,6 @@ local function get_action_at_index_ordered(action_table, index)
   return action_table[key_for_index]
 end
 
-local function uri_to_relative_path(uri)
-  vim.validate({['uri to get relative path for '] = { uri, 'string' }})
-
-  local absolute_path = vim.uri_to_fname(uri)
-  local current_working_directory = vim.api.nvim_call_function('getcwd', {})
-  local home_directory = os.getenv("HOME")
-
-  if absolute_path:find(current_working_directory, 1, true) then
-    return absolute_path:sub(current_working_directory:len() + 2)
-  elseif absolute_path:find(home_directory, 1, true) then
-    return absolute_path:sub(home_directory:len() + 2)
-  else
-    return absolute_path
-  end
-end
-
 return {
   get_buffer_width = get_buffer_width,
   get_buffer_height = get_buffer_height,
@@ -131,5 +115,4 @@ return {
   request_servers_for_actions = request_servers_for_actions,
   iterate_actions_ordered = iterate_actions_ordered,
   get_action_at_index_ordered = get_action_at_index_ordered,
-  uri_to_relative_path = uri_to_relative_path,
 }
