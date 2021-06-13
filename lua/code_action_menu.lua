@@ -7,7 +7,30 @@ local menu_window_instance = nil
 local details_window_instance = nil
 local warning_message_window_instace = nil
 
+local function close_code_action_menu()
+  if details_window_instance ~= nil then
+    details_window_instance:close()
+    details_window_instance = nil
+  end
+
+  if menu_window_instance ~= nil then
+    menu_window_instance:close()
+    menu_window_instance = nil
+  end
+end
+
+local function close_warning_message_window()
+  if warning_message_window_instace ~= nil then
+    warning_message_window_instace:close()
+    warning_message_window_instace = nil
+  end
+end
+
 local function open_code_action_menu()
+  -- Might be still open.
+  close_code_action_menu()
+  close_warning_message_window()
+
   local use_range = vim.api.nvim_get_mode().mode ~= 'n'
   local all_actions = shared_utils.request_servers_for_actions(use_range)
 
@@ -33,17 +56,6 @@ local function update_action_details()
   details_window_instance:open({ docking_window_number = menu_window_instance.window_number })
 end
 
-local function close_code_action_menu()
-  details_window_instance:close()
-  details_window_instance = nil
-  menu_window_instance:close()
-  menu_window_instance = nil
-end
-
-local function close_warning_message_window()
-  warning_message_window_instace:close()
-  warning_message_window_instace = nil
-end
 
 local function execute_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
