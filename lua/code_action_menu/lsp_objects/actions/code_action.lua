@@ -9,6 +9,7 @@ function CodeAction:new(server_data)
   setmetatable(instance, self)
   self.__index = self
 
+  -- TODO: This is here to see when a server supports it
   if server_data.diagnostics ~= nil then
     print(vim.inspect(server_data.diagnostics))
   end

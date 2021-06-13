@@ -19,9 +19,9 @@ local function get_action_workspace_edit_summary_lines(action)
   for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
     local status_icon = get_text_document_edit_status_icon(text_document_edit.status)
     local file_path = text_document_edit:get_document_path()
-    local number_of_added_lines = text_document_edit:get_number_of_added_lines()
-    local number_of_deleted_lines = text_document_edit:get_number_of_deleted_lines()
-    local summary_line = status_icon .. file_path .. ' (+' .. number_of_added_lines .. ' -' ..number_of_deleted_lines .. ')'
+    local line_number_statistics = text_document_edit:get_line_number_statistics()
+    local changes = '(+' .. line_number_statistics[1] .. ' -' .. line_number_statistics[2] .. ')'
+    local summary_line = status_icon .. file_path .. ' ' .. changes
     table.insert(all_summary_lines, summary_line)
   end
 

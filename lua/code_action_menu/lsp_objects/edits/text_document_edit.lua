@@ -1,5 +1,78 @@
 local TextDocumentEditStatusEnum = require('code_action_menu.enumerations.text_document_edit_status_enum')
 
+local function get_line_count_of_text(text)
+  vim.validate({['text to get line count for'] = { text, 'string' }})
+
+  local new_line_count = select(2, text:gsub('\n', '\n'))
+  local line_count = new_line_count + 1
+
+  if text:sub(-1) == '\n' then
+    line_count = line_count - 1
+  end
+
+  return line_count
+end
+
+-- This assumes that all edits do only insert new text
+local function get_line_count_of_all_edits(all_edits)
+  vim.validate({['edits to count'] = { all_edits, 'table' }})
+  
+  local line_count = 0
+
+  for _, edit in ipairs(all_edits) do
+    line_count = line_count + get_line_count_of_text(edit.newText)
+  end
+  
+  return line_count
+end
+
+local function get_added_line_count_of_all_edits(all_edits)
+  vim.validate({['edits to count'] = { all_edits, 'table' }})
+
+  local added_line_count = 0
+
+  for _, edit in ipairs(all_edits) do
+    local added_line_count_of_edit = get_line_count_of_text(edit.newText)
+    added_line_count = added_line_count + added_line_count_of_edit
+  end
+
+  return added_line_count
+end
+
+local function get_deleted_line_count_of_all_edits(all_edits)
+  vim.validate({['edits to count'] = { all_edits, 'table' }})
+
+  local deleted_line_count = 0
+
+  for _, edit in ipairs(all_edits) do
+    local startLine = edit.range.start.line
+    local startColumn = edit.range.start.character
+    local endLine = edit.range['end'].line
+    local endColumn = edit.range['end'].character
+    local text = edit.newText
+
+    -- This makes sure it isn't a pure new text insertion outside the scope
+    -- of just one line.
+    if not (startLine == endLine and startColumn == endColumn and text:sub(-1) == '\n') then
+      local deleted_line_count_of_edit = endLine - startLine + 1
+      deleted_line_count = deleted_line_count + deleted_line_count_of_edit
+    end
+  end
+
+  return deleted_line_count
+end
+
+local function get_line_count_of_file(uri)
+  vim.validate({['uri to get line count for'] = { uri, 'string' }})
+
+  local path = vim.uri_to_fname(uri)
+  local handle = vim.loop.fs_open(path, "r", 438)
+  local statistics = vim.loop.fs_fstat(handle)
+  local text = vim.loop.fs_read(handle, statistics.size)
+  vim.loop.fs_close(handle)
+  return get_line_count_of_text(text)
+end
+
 local TextDocumentEdit = {}
 
 function TextDocumentEdit:new(server_data)
@@ -54,24 +127,28 @@ function TextDocumentEdit:get_document_path()
   end
 end
 
-function TextDocumentEdit:get_number_of_added_lines()
-  local added_lines = {}
-  local number_of_added_lines = 0
+-- Takes the `git diff --numstat` as model. This means it only acts on full
+-- lines. As result a changed line counts as one added and one deleted at the
+-- same time.
+-- This "algorithm" is very limited and assumes that the language server its
+-- edits are efficient. This means that there are not multiple edits which act
+-- on the same or intersecting text ranges.
+-- 
+-- Returns tuple of (added_line_count, deleted_line_count)
+function TextDocumentEdit:get_line_number_statistics()
+  if self.status == TextDocumentEditStatusEnum.CREATED then
+    local added_line_count = get_line_count_of_all_edits(self.edits)
+    return { added_line_count, 0 }
 
-  for _, edit in ipairs(self.edits) do
-    local startLine = edit.range.start.line
-    local endLine = edit.range['end'].line
-    local text = edit.newText
+  elseif self.status == TextDocumentEditStatusEnum.DELETED then
+    local deleted_line_count = get_line_count_of_file(self.uri)
+    return { 0, deleted_line_count }
 
-    -- TODO: This includes lines where new text gets inserted.
-    if startLine == endLine and #text > 0 and added_lines[startLine] == nil then
-      added_lines[startLine] = true
-      number_of_added_lines_in_edit = select(2, text:gsub('\n', '\n'))
-      number_of_added_lines = number_of_added_lines + number_of_added_lines_in_edit
-    end
+  else
+    local added_line_count = get_added_line_count_of_all_edits(self.edits)
+    local deleted_line_count = get_deleted_line_count_of_all_edits(self.edits)
+    return { added_line_count, deleted_line_count }
   end
-
-  return number_of_added_lines
 end
 
 function TextDocumentEdit:get_number_of_deleted_lines()
