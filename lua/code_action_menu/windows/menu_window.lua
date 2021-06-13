@@ -33,6 +33,7 @@ function MenuWindow:new(all_actions)
 
   setmetatable(instance, self)
   self.__index = self
+  self.buffer_name = 'CodeActionMenuMenu'
   return instance
 end
 

@@ -3,7 +3,7 @@ local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = {
   window_number = -1,
   focusable = false,
-  window_set_options = {}
+  buffer_name = 'CodeActionMenuBase',
 }
 
 function BaseWindow:new(base_object)
@@ -42,6 +42,8 @@ function BaseWindow:open(window_configuration_options)
     vim.api.nvim_win_set_buf(self.window_number, buffer_number)
     vim.api.nvim_win_set_height(self.window_number, window_configuration.height)
   end
+
+  vim.api.nvim_buf_set_name(buffer_number, self.buffer_name)
 end
 
 function BaseWindow:close()

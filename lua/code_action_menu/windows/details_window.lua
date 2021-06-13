@@ -67,6 +67,7 @@ function DetailsWindow:new(action)
   local instance = BaseWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
+  self.buffer_name = 'CodeActionMenuDetails'
   return instance
 end
 

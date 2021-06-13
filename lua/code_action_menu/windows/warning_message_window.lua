@@ -11,6 +11,7 @@ function WarningMessageWindow:new()
   setmetatable(instance, self)
   self.__index = self
   self.window_set_options = window_set_options
+  self.buffer_name = 'CodeActionMenuWarningMessage'
   return instance
 end
 
