@@ -30,4 +30,46 @@ function TextDocumentEdit:get_document_path()
   end
 end
 
+function TextDocumentEdit:get_number_of_added_lines()
+  local added_lines = {}
+  local number_of_added_lines = 0
+
+  for _, edit in ipairs(self.edits) do
+    local startLine = edit.range.start.line
+    local endLine = edit.range['end'].line
+    local text = edit.newText
+
+    -- TODO: This includes lines where new text gets inserted.
+    if startLine == endLine and #text > 0 and added_lines[startLine] == nil then
+      added_lines[startLine] = true
+      number_of_added_lines = number_of_added_lines + 1
+    end
+  end
+
+  return number_of_added_lines
+end
+
+function TextDocumentEdit:get_number_of_deleted_lines()
+  local deleted_lines = {}
+  local number_of_deleted_lines = 0
+
+  for _, edit in ipairs(self.edits) do
+    local startLine = edit.range.start.line
+    local endLine = edit.range['end'].line
+    local text = edit.newText
+
+    -- TODO: This includes lines where text gets deleted inside.
+    if #text == 0 then
+      for line = startLine, endLine do
+        if deleted_lines[line] == nil then
+          deleted_lines[line] = true
+          number_of_deleted_lines = number_of_deleted_lines + 1
+        end
+      end
+    end
+  end
+
+  return number_of_deleted_lines
+end
+
 return TextDocumentEdit

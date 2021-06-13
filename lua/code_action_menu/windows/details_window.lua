@@ -1,17 +1,20 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
-local function get_changing_file_paths_of_action(action)
+local function get_action_workspace_edit_summary_lines(action)
   local workspace_edit = action:get_workspace_edit()
   local all_text_document_edits = workspace_edit:get_all_text_document_edits()
-  local all_changing_file_paths = {}
+  local all_summary_lines = {}
 
   for _, text_document_edit in ipairs(all_text_document_edits) do
     local file_path = text_document_edit:get_document_path()
-    table.insert(all_changing_file_paths, file_path)
+    local number_of_added_lines = text_document_edit:get_number_of_added_lines()
+    local number_of_deleted_lines = text_document_edit:get_number_of_deleted_lines()
+    local summary_line = file_path .. ' (+' .. number_of_added_lines .. ' -' ..number_of_deleted_lines .. ')'
+    table.insert(all_summary_lines, summary_line)
   end
 
-  return all_changing_file_paths
+  return all_summary_lines
 end
 
 local function format_details_for_action(action)
@@ -32,14 +35,14 @@ local function format_details_for_action(action)
     'Disabled:    ' .. disabled,
   }
 
-  local file_paths = get_changing_file_paths_of_action(action)
+  local changing_summary_lines = get_action_workspace_edit_summary_lines(action)
 
-  if #file_paths ~= 0 then
-    table.insert(details, 'Changes:     - ' .. file_paths[1])
+  if #changing_summary_lines ~= 0 then
+    table.insert(details, 'Changes:     ' .. changing_summary_lines[1])
   end
 
-  for index = 2, #file_paths do
-    table.insert(details, '             - ' .. file_paths[index])
+  for index = 2, #changing_summary_lines do
+    table.insert(details, '             ' .. changing_summary_lines[index])
   end
 
   return details

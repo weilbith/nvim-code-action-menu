@@ -7,9 +7,13 @@ syntax keyword CodeActionMenuDetailsLabel Changes:
 syntax match CodeActionMenuDetailsPreferred 'yes' contained
 syntax match CodeActionMenuDetailsDisabled 'yes.*' contained
 syntax keyword CodeActionMenuDetailsUndefined undefined
+syntax match CodeActionMenuDetailsAddedLines '+\d\+'
+syntax match CodeActionMenuDetailsDeletedLines '-\d\+'
 
-highlight default link CodeActionMenuDetailsTitle     Title
-highlight default link CodeActionMenuDetailsLabel     Label
-highlight default link CodeActionMenuDetailsPreferred DiffAdd
-highlight default link CodeActionMenuDetailsDisabled  Error
-highlight default link CodeActionMenuDetailsUndefined Comment
+highlight default link CodeActionMenuDetailsTitle         Title
+highlight default link CodeActionMenuDetailsLabel         Label
+highlight default link CodeActionMenuDetailsPreferred     DiffAdd
+highlight default link CodeActionMenuDetailsDisabled      Error
+highlight default link CodeActionMenuDetailsUndefined     Comment
+highlight default link CodeActionMenuDetailsAddedLines    DiffAdd
+highlight default link CodeActionMenuDetailsDeletedLines  DiffDelete
