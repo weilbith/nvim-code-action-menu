@@ -42,7 +42,8 @@ function TextDocumentEdit:get_number_of_added_lines()
     -- TODO: This includes lines where new text gets inserted.
     if startLine == endLine and #text > 0 and added_lines[startLine] == nil then
       added_lines[startLine] = true
-      number_of_added_lines = number_of_added_lines + 1
+      number_of_added_lines_in_edit = select(2, text:gsub('\n', '\n'))
+      number_of_added_lines = number_of_added_lines + number_of_added_lines_in_edit
     end
   end
 
