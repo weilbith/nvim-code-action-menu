@@ -27,7 +27,7 @@ function Command:get_workspace_edit()
 
   for _, argument in ipairs(self.server_data.arguments or {}) do
     for _, data in ipairs(argument.documentChanges or {}) do
-      local text_document_edit = TextDocumentEdit:new(data.textDocument.uri, data.edits)
+      local text_document_edit = TextDocumentEdit:new(data)
       workspace_edit:add_text_document_edit(text_document_edit)
     end
   end

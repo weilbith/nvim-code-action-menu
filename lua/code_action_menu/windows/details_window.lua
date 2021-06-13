@@ -1,16 +1,27 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
+local TextDocumentEditStatusEnum = require('code_action_menu.enumerations.text_document_edit_status_enum')
+
+local function get_text_document_edit_status_icon(status)
+  return (
+    status == TextDocumentEditStatusEnum.CREATED and '*' or
+    status == TextDocumentEditStatusEnum.CHANGED and '~' or
+    status == TextDocumentEditStatusEnum.RENAMED and '>' or
+    status == TextDocumentEditStatusEnum.DELETED and '!' or
+    error("Can not get icon unknown TextDocumentEdit status: '" .. status .. "'")
+  )
+end
 
 local function get_action_workspace_edit_summary_lines(action)
   local workspace_edit = action:get_workspace_edit()
-  local all_text_document_edits = workspace_edit:get_all_text_document_edits()
   local all_summary_lines = {}
 
-  for _, text_document_edit in ipairs(all_text_document_edits) do
+  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
+    local status_icon = get_text_document_edit_status_icon(text_document_edit.status)
     local file_path = text_document_edit:get_document_path()
     local number_of_added_lines = text_document_edit:get_number_of_added_lines()
     local number_of_deleted_lines = text_document_edit:get_number_of_deleted_lines()
-    local summary_line = file_path .. ' (+' .. number_of_added_lines .. ' -' ..number_of_deleted_lines .. ')'
+    local summary_line = status_icon .. file_path .. ' (+' .. number_of_added_lines .. ' -' ..number_of_deleted_lines .. ')'
     table.insert(all_summary_lines, summary_line)
   end
 

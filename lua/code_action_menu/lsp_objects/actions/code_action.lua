@@ -63,12 +63,13 @@ function CodeAction:get_workspace_edit()
 
   if self:is_workspace_edit() then
     for _, data in ipairs(self.server_data.edit.documentChanges or {}) do
-      local text_document_edit = TextDocumentEdit:new(data.textDocument.uri, data.edits)
+      local text_document_edit = TextDocumentEdit:new(data)
       workspace_edit:add_text_document_edit(text_document_edit)
     end
 
     for uri, edits in ipairs(self.server_data.edit.changes or {}) do
-      local text_document_edit = TextDocumentEdit:new(uri, edits)
+      local data = { uri = uri, edits = edits }
+      local text_document_edit = TextDocumentEdit:new(data)
       workspace_edit:add_text_document_edit(text_document_edit)
     end
   end

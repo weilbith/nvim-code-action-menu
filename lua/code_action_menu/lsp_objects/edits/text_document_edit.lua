@@ -1,19 +1,43 @@
+local TextDocumentEditStatusEnum = require('code_action_menu.enumerations.text_document_edit_status_enum')
+
 local TextDocumentEdit = {}
 
-function TextDocumentEdit:new(uri, edits)
-  vim.validate({['text document uri'] = { uri, 'string' }})
-  vim.validate({['text document edits'] = { edits, 'table' }})
+function TextDocumentEdit:new(server_data)
+  vim.validate({['text document server data'] = { server_data, 'table' }})
 
-  local instance = { uri = uri, edits = edits }
+  local uri = server_data.uri or server_data.newUri or server_data.textDocument.uri
+  local edits = server_data.edits or {}
+  local kind = server_data.kind
+  local status = (
+    kind == 'create' and TextDocumentEditStatusEnum.CREATED or
+    kind == 'rename' and TextDocumentEditStatusEnum.RENAMED or
+    kind == 'delete' and TextDocumentEditStatusEnum.DELETED or
+    TextDocumentEditStatusEnum.CHANGED
+  )
+
+  local instance = {
+    uri = uri ,
+    edits = edits,
+    status = status,
+  }
+
   setmetatable(instance, self)
   self.__index = self
   return instance
 end
 
-function TextDocumentEdit:add_edits(edits)
-  vim.validate({['text document edits'] = { edits, 'table' }})
+function TextDocumentEdit:merge_text_document_edit_for_same_uri(text_document_edit)
+  vim.validate({['text document edit to merge'] = { text_document_edit, 'table' }})
 
-  vim.list_extend(self.edits, edits)
+  if text_document_edit.uri ~= self.uri then
+    error("Can not merge to TextDocumentEdits for different URIs!")
+  end
+
+  vim.list_extend(self.edits, text_document_edit.edits or {})
+
+  if text_document_edit.status ~= TextDocumentEditStatusEnum.CHANGED then
+    self.status = text_document_edit.status
+  end
 end
 
 function TextDocumentEdit:get_document_path()
