@@ -18,3 +18,7 @@ nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu(
 call feedkeys('jk')
 
 autocmd! CursorMoved <buffer> lua require('code_action_menu').update_action_details()
+
+autocmd User CodeActionMenuWindowOpened ++once set scrolloff=0
+autocmd User CodeActionMenuWindowOpened ++once set cursorline
+autocmd User CodeActionMenuWindowOpened ++once set winhighlight=CursorLine:CodeActionMenuMenuSelection

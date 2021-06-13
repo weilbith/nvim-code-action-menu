@@ -37,7 +37,7 @@ function BaseWindow:open(window_configuration_options)
 
   if self.window_number == -1 then
     self.window_number = vim.api.nvim_open_win(buffer_number, self.focusable, window_configuration)
-    shared_utils.set_window_options(self.window_number, self.window_set_options)
+    vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
   else
     vim.api.nvim_win_set_buf(self.window_number, buffer_number)
     vim.api.nvim_win_set_height(self.window_number, window_configuration.height)

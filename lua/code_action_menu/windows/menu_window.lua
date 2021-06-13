@@ -1,15 +1,6 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
 
-local window_set_options = {
-  scrolloff = 0,
-  wrap = false,
-  cursorline = true,
-  winhighlight = 'CursorLine:CodeActionMenuMenuSelection',
-  winfixheight = true,
-  winfixwidth = true,
-}
-
 local function format_summary_for_action(action, index)
   vim.validate({['action to format summary for'] = { action, 'table' }})
 

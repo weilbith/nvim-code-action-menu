@@ -19,15 +19,6 @@ local function get_buffer_height(buffer_number)
   return #buffer_lines
 end
 
-local function set_window_options(window_number, window_options)
-  vim.validate({['preview window number'] = { window_number, 'number' }})
-  vim.validate({['preview window options'] = { window_options, 'table' }})
-
-  for name, value in pairs(window_options) do
-    vim.api.nvim_win_set_option(window_number, name, value)
-  end
-end
-
 local function request_servers_for_actions(use_range)
   vim.validate({['request action for range'] = { use_range, 'boolean', true }})
 
@@ -111,7 +102,6 @@ end
 return {
   get_buffer_width = get_buffer_width,
   get_buffer_height = get_buffer_height,
-  set_window_options = set_window_options,
   request_servers_for_actions = request_servers_for_actions,
   iterate_actions_ordered = iterate_actions_ordered,
   get_action_at_index_ordered = get_action_at_index_ordered,
