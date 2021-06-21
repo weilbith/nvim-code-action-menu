@@ -27,7 +27,7 @@ local function close_warning_message_window()
 end
 
 local function open_code_action_menu()
-  -- Might be still open.
+  -- Might still be open.
   close_code_action_menu()
   close_warning_message_window()
 
@@ -53,7 +53,7 @@ local function update_action_details()
     details_window_instance:set_action(selected_action)
   end
 
-  details_window_instance:open({ docking_window_number = menu_window_instance.window_number })
+  details_window_instance:open({ window_to_dock_on = menu_window_instance.window_number })
 end
 
 

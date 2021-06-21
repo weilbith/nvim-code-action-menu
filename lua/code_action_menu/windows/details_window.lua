@@ -1,5 +1,4 @@
-local shared_utils = require('code_action_menu.shared_utils')
-local BaseWindow = require('code_action_menu.windows.base_window')
+local DockingWindow = require('code_action_menu.windows.docking_window')
 local TextDocumentEditStatusEnum = require('code_action_menu.enumerations.text_document_edit_status_enum')
 
 local function get_text_document_edit_status_icon(status)
@@ -59,12 +58,12 @@ local function format_details_for_action(action)
   return details
 end
 
-DetailsWindow = BaseWindow:new()
+DetailsWindow = DockingWindow:new()
 
 function DetailsWindow:new(action)
   vim.validate({['details window action'] = { action, 'table' }})
 
-  local instance = BaseWindow:new({ action = action })
+  local instance = DockingWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
   self.buffer_name = 'CodeActionMenuDetails'
@@ -79,45 +78,6 @@ function DetailsWindow:create_buffer()
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-details')
 
   return buffer_number
-end
-
-function DetailsWindow:get_window_configuration(buffer_number, configuration_options)
-  vim.validate({['buffer number to create window for'] = { buffer_number, 'number' }})
-  vim.validate({['detail window configuration options'] = { configuration_options, 'table' }})
-  vim.validate({['window number to dock details'] = { configuration_options.docking_window_number, 'number' }})
-
-  if configuration_options.docking_window_number == -1 then
-    error('The code action details window must be docked to another window!')
-  end
-
-  local window_border_height = 2
-  -- Do not use window position as it is wrong at this point in time.
-  local docking_window_configuration = vim.api.nvim_win_get_config(configuration_options.docking_window_number)
-  local docking_window_row = docking_window_configuration.row[false]
-  local docking_window_column = docking_window_configuration.col[false]
-  local docking_window_height = docking_window_configuration.height + window_border_height
-  local docking_window_width = docking_window_configuration.width
-  local editor_height = vim.api.nvim_get_option('lines')
-  local open_space_bottom = editor_height - docking_window_row - docking_window_height
-  local details_window_height = shared_utils.get_buffer_height(buffer_number)
-  local details_window_row = 0
-
-  if open_space_bottom >= details_window_height then
-    details_window_row = docking_window_row + docking_window_height
-  else
-    details_window_row = docking_window_row - details_window_height - 2
-  end
-
-  return {
-    relative = 'editor',
-    row = details_window_row,
-    col = docking_window_column,
-    width = docking_window_width,
-    height = details_window_height,
-    focusable = false,
-    style = 'minimal',
-    border = 'single'
-  }
 end
 
 function DetailsWindow:set_action(action)
