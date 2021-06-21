@@ -1,16 +1,23 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local MenuWindow = require('code_action_menu.windows.menu_window')
 local DetailsWindow = require('code_action_menu.windows.details_window')
+local DiffWindow = require('code_action_menu.windows.diff_window')
 local WarningMessageWindow = require('code_action_menu.windows.warning_message_window')
 
 local menu_window_instance = nil
 local details_window_instance = nil
+local diff_window_instance = nil
 local warning_message_window_instace = nil
 
 local function close_code_action_menu()
   if details_window_instance ~= nil then
     details_window_instance:close()
     details_window_instance = nil
+  end
+
+  if diff_window_instance ~= nil then
+    diff_window_instance:close()
+    diff_window_instance = nil
   end
 
   if menu_window_instance ~= nil then
@@ -44,7 +51,7 @@ local function open_code_action_menu()
   end
 end
 
-local function update_action_details()
+local function update_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
 
   if details_window_instance == nil then
@@ -54,8 +61,15 @@ local function update_action_details()
   end
 
   details_window_instance:open({ window_to_dock_on = menu_window_instance.window_number })
-end
 
+  if diff_window_instance == nil then
+    diff_window_instance = DiffWindow:new(selected_action)
+  else
+    diff_window_instance:set_action(selected_action)
+  end
+
+  diff_window_instance:open({ window_to_dock_on = details_window_instance.window_number })
+end
 
 local function execute_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
@@ -77,7 +91,7 @@ end
 
 return {
   open_code_action_menu = open_code_action_menu,
-  update_action_details = update_action_details,
+  update_selected_action = update_selected_action,
   close_code_action_menu = close_code_action_menu,
   close_warning_message_window = close_warning_message_window,
   execute_selected_action = execute_selected_action,
