@@ -133,21 +133,21 @@ end
 -- This "algorithm" is very limited and assumes that the language server its
 -- edits are efficient. This means that there are not multiple edits which act
 -- on the same or intersecting text ranges.
--- 
--- Returns tuple of (added_line_count, deleted_line_count)
+--
+-- Returns table with the key `added` and `deleted` with numbers as values
 function TextDocumentEdit:get_line_number_statistics()
   if self.status == TextDocumentEditStatusEnum.CREATED then
     local added_line_count = get_line_count_of_all_edits(self.edits)
-    return { added_line_count, 0 }
+    return { added = added_line_count, deleted = 0 }
 
   elseif self.status == TextDocumentEditStatusEnum.DELETED then
     local deleted_line_count = get_line_count_of_file(self.uri)
-    return { 0, deleted_line_count }
+    return { added = 0, deleted = deleted_line_count }
 
   else
     local added_line_count = get_added_line_count_of_all_edits(self.edits)
     local deleted_line_count = get_deleted_line_count_of_all_edits(self.edits)
-    return { added_line_count, deleted_line_count }
+    return { added = added_line_count, deleted =deleted_line_count }
   end
 end
 

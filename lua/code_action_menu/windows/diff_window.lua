@@ -19,12 +19,64 @@ local function format_diff_for_action(action)
     local status_icon = get_text_document_edit_status_icon(text_document_edit.status)
     local file_path = text_document_edit:get_document_path()
     local line_number_statistics = text_document_edit:get_line_number_statistics()
-    local changes = '(+' .. line_number_statistics[1] .. ' -' .. line_number_statistics[2] .. ')'
+    local changes = '(+' .. line_number_statistics.added .. ' -' .. line_number_statistics.deleted .. ')'
     local line = status_icon .. file_path .. ' ' .. changes
     table.insert(diff, line)
   end
 
   return diff
+end
+
+local function get_diff_square_counts(text_document_edit)
+  local line_number_statistics = text_document_edit:get_line_number_statistics()
+  local total_changed_lines = line_number_statistics.added + line_number_statistics.deleted
+  local modulu_five = total_changed_lines % 5
+  local total_changed_lines_round_to_five = total_changed_lines + (modulu_five > 0 and 5 - modulu_five or 0)
+  local lines_per_square = total_changed_lines_round_to_five / 5
+  local squares_for_added_lines = math.floor(line_number_statistics.added / lines_per_square)
+  local squares_for_deleted_lines = math.floor(line_number_statistics.deleted / lines_per_square)
+
+  if line_number_statistics.added > 0 and squares_for_added_lines == 0 then
+    squares_for_added_lines = 1
+  end
+
+  if line_number_statistics.deleted > 0 and squares_for_deleted_lines == 0 then
+    squares_for_deleted_lines = 1
+  end
+
+  local squares_for_neutral_fill = 5 - squares_for_added_lines - squares_for_deleted_lines
+
+  return {
+    added = squares_for_added_lines,
+    deleted = squares_for_deleted_lines,
+    neutral = squares_for_neutral_fill,
+  }
+end
+
+-- We need to use virtual text here as coloring the squares differently simply
+-- is not possible with traditional syntax highlighting. At least not without
+-- much pita.
+local function add_colored_diff_square_as_virtual_text(buffer_number, action)
+  local workspace_edit = action:get_workspace_edit()
+
+  for index, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
+    local square_counts = get_diff_square_counts(text_document_edit)
+    local chunks = {}
+
+    if square_counts.added > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.added), 'CodeActionMenuDetailsAddedSquares' })
+    end
+
+    if square_counts.deleted > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.deleted), 'CodeActionMenuDetailsDeletedSquares' })
+    end
+
+    if square_counts.neutral > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.neutral), 'CodeActionMenuDetailsNeutralSquares' })
+    end
+
+    vim.api.nvim_buf_set_virtual_text(buffer_number, -1, index -1 , chunks, {} )
+  end
 end
 
 DiffWindow = StackingWindow:new()
@@ -49,6 +101,7 @@ function DiffWindow:create_buffer()
 
   vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, diff)
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-diff')
+  add_colored_diff_square_as_virtual_text(buffer_number, self.action)
 
   return buffer_number
 end
