@@ -33,6 +33,12 @@ function BaseWindow:open(window_configuration_options)
   vim.validate({['window configuration options'] = { window_configuration_options, 'table', true }})
 
   local buffer_number = self:create_buffer()
+
+  if buffer_number == -1 then
+    self:close() -- This window might be already open and should be closed then.
+    return
+  end
+
   local window_configuration = self:get_window_configuration(buffer_number, window_configuration_options)
 
   if self.window_number == -1 then

@@ -43,6 +43,10 @@ function DiffWindow:create_buffer()
   local buffer_number = vim.api.nvim_create_buf(false, true)
   local diff = format_diff_for_action(self.action)
 
+  if #diff == 0 then
+    return -1
+  end
+
   vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, diff)
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-diff')
 

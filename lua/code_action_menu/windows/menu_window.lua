@@ -18,7 +18,6 @@ function MenuWindow:new(all_actions)
 
   local instance = BaseWindow:new({
     focusable = true,
-    window_set_options = window_set_options,
     all_actions = all_actions,
   })
 
