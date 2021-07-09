@@ -1,4 +1,4 @@
-local DockingWindow = require('code_action_menu.windows.docking_window')
+local StackingWindow = require('code_action_menu.windows.stacking_window')
 local TextDocumentEditStatusEnum = require('code_action_menu.enumerations.text_document_edit_status_enum')
 
 local function get_text_document_edit_status_icon(status)
@@ -27,12 +27,12 @@ local function format_diff_for_action(action)
   return diff
 end
 
-DiffWindow = DockingWindow:new()
+DiffWindow = StackingWindow:new()
 
 function DiffWindow:new(action)
   vim.validate({['diff window action'] = { action, 'table' }})
 
-  local instance = DockingWindow:new({ action = action })
+  local instance = StackingWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
   self.buffer_name = 'CodeActionMenuDiff'

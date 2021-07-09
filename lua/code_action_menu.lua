@@ -60,7 +60,7 @@ local function update_selected_action()
     details_window_instance:set_action(selected_action)
   end
 
-  details_window_instance:open({ window_to_dock_on = menu_window_instance.window_number })
+  details_window_instance:open({ window_stack = { menu_window_instance }})
 
   if diff_window_instance == nil then
     diff_window_instance = DiffWindow:new(selected_action)
@@ -68,7 +68,7 @@ local function update_selected_action()
     diff_window_instance:set_action(selected_action)
   end
 
-  diff_window_instance:open({ window_to_dock_on = details_window_instance.window_number })
+  diff_window_instance:open({ window_stack = { menu_window_instance, details_window_instance }})
 end
 
 local function execute_selected_action()

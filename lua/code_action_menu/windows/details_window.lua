@@ -1,4 +1,4 @@
-local DockingWindow = require('code_action_menu.windows.docking_window')
+local StackingWindow = require('code_action_menu.windows.stacking_window')
 
 local function format_details_for_action(action)
   vim.validate({['action to format details for'] = { action, 'table' }})
@@ -19,12 +19,12 @@ local function format_details_for_action(action)
   }
 end
 
-DetailsWindow = DockingWindow:new()
+DetailsWindow = StackingWindow:new()
 
 function DetailsWindow:new(action)
   vim.validate({['details window action'] = { action, 'table' }})
 
-  local instance = DockingWindow:new({ action = action })
+  local instance = StackingWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
   self.buffer_name = 'CodeActionMenuDetails'

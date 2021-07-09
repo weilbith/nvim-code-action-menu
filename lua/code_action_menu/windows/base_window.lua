@@ -2,6 +2,7 @@ local shared_utils = require('code_action_menu.shared_utils')
 
 local BaseWindow = {
   window_number = -1,
+  window_options = nil,
   focusable = false,
   buffer_name = 'CodeActionMenuBase',
 }
@@ -43,6 +44,7 @@ function BaseWindow:open(window_configuration_options)
 
   if self.window_number == -1 then
     self.window_number = vim.api.nvim_open_win(buffer_number, self.focusable, window_configuration)
+    self.window_options = vim.api.nvim_win_get_config(self.window_number)
     vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
   else
     vim.api.nvim_win_set_buf(self.window_number, buffer_number)
@@ -50,6 +52,21 @@ function BaseWindow:open(window_configuration_options)
   end
 
   vim.api.nvim_buf_set_name(buffer_number, self.buffer_name)
+end
+
+function BaseWindow:get_option(name)
+  if self.window_options == nil then
+    return nil
+  else
+    local option = self.window_options[name]
+
+    -- Special treatment to get absolute positions. Ugly but...
+    if name == 'row' or name == 'col' then
+      return option[false]
+    else
+      return option
+    end
+  end
 end
 
 function BaseWindow:close()
