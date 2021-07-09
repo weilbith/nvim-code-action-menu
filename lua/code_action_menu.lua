@@ -1,15 +1,19 @@
 local shared_utils = require('code_action_menu.shared_utils')
+local AnchorWindow = require('code_action_menu.windows.anchor_window')
 local MenuWindow = require('code_action_menu.windows.menu_window')
 local DetailsWindow = require('code_action_menu.windows.details_window')
 local DiffWindow = require('code_action_menu.windows.diff_window')
 local WarningMessageWindow = require('code_action_menu.windows.warning_message_window')
 
+local anchor_window_instance = nil
 local menu_window_instance = nil
 local details_window_instance = nil
 local diff_window_instance = nil
 local warning_message_window_instace = nil
 
 local function close_code_action_menu()
+  anchor_window_instance = nil
+
   if details_window_instance ~= nil then
     details_window_instance:close()
     details_window_instance = nil
@@ -46,8 +50,12 @@ local function open_code_action_menu()
     warning_message_window_instace:open()
     vim.api.nvim_command('autocmd! CursorMoved <buffer> ++once lua require("code_action_menu").close_warning_message_window()')
   else
+    anchor_window_instance = AnchorWindow:new()
     menu_window_instance = MenuWindow:new(all_actions)
-    menu_window_instance:open()
+    menu_window_instance:open({
+      window_stack = { anchor_window_instance },
+      use_buffer_width = true,
+    })
   end
 end
 
@@ -60,7 +68,12 @@ local function update_selected_action()
     details_window_instance:set_action(selected_action)
   end
 
-  details_window_instance:open({ window_stack = { menu_window_instance }})
+  details_window_instance:open({
+    window_stack = {
+      anchor_window_instance,
+      menu_window_instance
+    }
+  })
 
   if diff_window_instance == nil then
     diff_window_instance = DiffWindow:new(selected_action)
@@ -68,7 +81,13 @@ local function update_selected_action()
     diff_window_instance:set_action(selected_action)
   end
 
-  diff_window_instance:open({ window_stack = { menu_window_instance, details_window_instance }})
+  diff_window_instance:open({
+    window_stack = {
+      anchor_window_instance,
+      menu_window_instance,
+      details_window_instance
+    }
+  })
 end
 
 local function execute_selected_action()
