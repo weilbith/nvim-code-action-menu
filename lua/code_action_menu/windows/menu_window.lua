@@ -6,8 +6,8 @@ local function format_summary_for_action(action, index)
 
   local formatted_index = ' [' .. index .. ']'
   local kind = '(' .. action:get_kind() .. ')'
-  local disabled = action:is_disabled() and ' [disabled]' or ''
   local title = action:get_title()
+  local disabled = action:is_disabled() and ' [disabled]' or ''
   return formatted_index .. ' ' .. kind .. ' ' .. title .. disabled
 end
 
