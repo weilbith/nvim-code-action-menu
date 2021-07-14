@@ -43,21 +43,6 @@ local function get_diff_lines_formatted(text_document_edit)
   return diff_lines
 end
 
-local function get_formatted_action_edit_diff(action)
-  local workspace_edit = action:get_workspace_edit()
-  local formatted_output = {}
-
-  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
-    local summary_line = get_summary_line_formatted(text_document_edit)
-    table.insert(formatted_output, summary_line)
-
-    local diff_lines = get_diff_lines_formatted(text_document_edit)
-    vim.list_extend(formatted_output, diff_lines)
-  end
-
-  return formatted_output
-end
-
 local function get_diff_square_counts(text_document_edit)
   local line_number_statistics = text_document_edit:get_line_number_statistics()
   local total_changed_lines = line_number_statistics.added + line_number_statistics.deleted
@@ -119,22 +104,24 @@ function DiffWindow:new(action)
   setmetatable(instance, self)
   self.__index = self
   self.buffer_name = 'CodeActionMenuDiff'
+  self.filetype = 'code-action-menu-diff'
   return instance
 end
 
-function DiffWindow:create_buffer()
-  local buffer_number = vim.api.nvim_create_buf(false, true)
-  local content = get_formatted_action_edit_diff(self.action)
+function DiffWindow:get_content()
+  local content = {}
+  local workspace_edit = self.action:get_workspace_edit()
 
-  if #content == 0 then
-    return -1
+  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
+    local summary_line = get_summary_line_formatted(text_document_edit)
+    table.insert(content, summary_line)
+
+    local diff_lines = get_diff_lines_formatted(text_document_edit)
+    vim.list_extend(content, diff_lines)
   end
 
-  vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, content)
-  vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-diff')
-  add_colored_diff_square_as_virtual_text(buffer_number, self.action)
-
-  return buffer_number
+  return content
+  -- add_colored_diff_square_as_virtual_text(buffer_number, self.action)
 end
 
 function DiffWindow:set_action(action)

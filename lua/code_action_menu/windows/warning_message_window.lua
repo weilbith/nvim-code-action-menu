@@ -7,17 +7,12 @@ function WarningMessageWindow:new()
   setmetatable(instance, self)
   self.__index = self
   self.buffer_name = 'CodeActionMenuWarningMessage'
+  self.filetype = 'code-action-menu-warning-message'
   return instance
 end
 
-function WarningMessageWindow:create_buffer()
-  local buffer_number = vim.api.nvim_create_buf(false, true)
-  local message = 'No code actions available!'
-
-  vim.api.nvim_buf_set_lines(buffer_number, 0, 1, false, { message })
-  vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-warning-message')
-
-  return buffer_number
+function WarningMessageWindow:get_content()
+  return { 'No code actions available!' }
 end
 
 return WarningMessageWindow

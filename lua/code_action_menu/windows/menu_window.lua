@@ -21,22 +21,19 @@ function MenuWindow:new(all_actions)
   self.__index = self
   self.focusable = true
   self.buffer_name = 'CodeActionMenuMenu'
+  self.filetype = 'code-action-menu-menu'
   return instance
 end
 
-function MenuWindow:create_buffer()
-  local buffer_number = vim.api.nvim_create_buf(false, true)
-  local buffer_content = {}
+function MenuWindow:get_content()
+  local content = {}
 
   for index, action in shared_utils.iterate_actions_ordered(self.all_actions) do
     local line = format_summary_for_action(action, index)
-    table.insert(buffer_content, line)
+    table.insert(content, line)
   end
 
-  vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, buffer_content)
-  vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-menu')
-
-  return buffer_number
+  return content
 end
 
 function MenuWindow:get_selected_action()

@@ -52,8 +52,8 @@ end
 -- important as they specify in which direction the stack is growing. Each new
 -- stacking window will be docked either on top or below the last window in
 -- the stack.
-function StackingWindow:get_window_configuration(buffer_number, window_configuration_options)
-  vim.validate({['buffer number to create window for'] = { buffer_number, 'number' }})
+function StackingWindow:get_window_configuration(window_configuration_options)
+  vim.validate({['buffer number to create window for'] = { self.buffer_number, 'number' }})
   vim.validate({['window configuration options'] = { window_configuration_options, 'table' }})
   vim.validate({['window stack'] = { window_configuration_options.window_stack, 'table' }})
   vim.validate({['use buffer width'] = { window_configuration_options.user_buffer_width, 'boolean', true }})
@@ -64,9 +64,9 @@ function StackingWindow:get_window_configuration(buffer_number, window_configura
   -- This makes the simplification to assume that all floating windows have a border...
   local border_height = last_window:get_option('zindex') and 2 or 0
 
-  local window_height = shared_utils.get_buffer_height(buffer_number)
+  local window_height = shared_utils.get_buffer_height(self.buffer_number)
   local window_width = window_configuration_options.use_buffer_width and
-    shared_utils.get_buffer_width(buffer_number) + 1 or
+    shared_utils.get_buffer_width(self.buffer_number) + 1 or
     last_window:get_option('width')
   local window_column = last_window:get_option('col')
   local window_row = 0
