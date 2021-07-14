@@ -69,30 +69,9 @@ local function get_diff_square_counts(text_document_edit)
   }
 end
 
--- We need to use virtual text here as coloring the squares differently simply
--- is not possible with traditional syntax highlighting. At least not without
--- much pita.
-local function add_colored_diff_square_as_virtual_text(buffer_number, action)
-  local workspace_edit = action:get_workspace_edit()
-
-  for index, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
-    local square_counts = get_diff_square_counts(text_document_edit)
-    local chunks = {}
-
-    if square_counts.added > 0 then
-      table.insert(chunks, { string.rep('■', square_counts.added), 'CodeActionMenuDetailsAddedSquares' })
-    end
-
-    if square_counts.deleted > 0 then
-      table.insert(chunks, { string.rep('■', square_counts.deleted), 'CodeActionMenuDetailsDeletedSquares' })
-    end
-
-    if square_counts.neutral > 0 then
-      table.insert(chunks, { string.rep('■', square_counts.neutral), 'CodeActionMenuDetailsNeutralSquares' })
-    end
-
-    vim.api.nvim_buf_set_virtual_text(buffer_number, -1, index -1 , chunks, {} )
-  end
+function get_count_of_edits_diff_lines(text_document_edit)
+  local diff_lines = get_diff_lines_formatted(text_document_edit)
+  return #diff_lines
 end
 
 DiffWindow = StackingWindow:new()
@@ -121,7 +100,37 @@ function DiffWindow:get_content()
   end
 
   return content
-  -- add_colored_diff_square_as_virtual_text(buffer_number, self.action)
+end
+
+function DiffWindow:update_virtual_text()
+  local workspace_edit = self.action:get_workspace_edit()
+  local summary_line_index = 0
+
+  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
+    local square_counts = get_diff_square_counts(text_document_edit)
+    local chunks = {}
+
+    if square_counts.added > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.added), 'CodeActionMenuDetailsAddedSquares' })
+    end
+
+    if square_counts.deleted > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.deleted), 'CodeActionMenuDetailsDeletedSquares' })
+    end
+
+    if square_counts.neutral > 0 then
+      table.insert(chunks, { string.rep('■', square_counts.neutral), 'CodeActionMenuDetailsNeutralSquares' })
+    end
+
+    vim.api.nvim_buf_set_virtual_text(
+      self.buffer_number,
+      self.namespace_id,
+      summary_line_index,
+      chunks,
+      {}
+    )
+    summary_line_index = summary_line_index + get_count_of_edits_diff_lines(text_document_edit)
+  end
 end
 
 function DiffWindow:set_action(action)

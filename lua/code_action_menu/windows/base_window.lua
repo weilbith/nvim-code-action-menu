@@ -7,6 +7,7 @@ local BaseWindow = {
   buffer_name = 'CodeActionMenuBase',
   focusable = false,
   filetype = '',
+  namespace_id = vim.api.nvim_create_namespace('code_action_menu'),
 }
 
 function BaseWindow:new(base_object)
@@ -20,7 +21,13 @@ function BaseWindow:get_content()
   return {}
 end
 
+function BaseWindow:update_virtual_text()
+  return
+end
+
 function BaseWindow:update_buffer_content()
+  vim.api.nvim_buf_clear_namespace(self.buffer_number, self.namespace_id, 0, -1)
+
   local content = self:get_content()
 
   if #content == 0 then
@@ -30,6 +37,8 @@ function BaseWindow:update_buffer_content()
     vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', '')
     vim.api.nvim_buf_set_lines(self.buffer_number, 0, -1, false, content)
     vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', self.filetype)
+
+    self:update_virtual_text()
   end
 end
 
