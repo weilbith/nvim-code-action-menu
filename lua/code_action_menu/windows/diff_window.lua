@@ -11,20 +11,51 @@ local function get_text_document_edit_status_icon(status)
   )
 end
 
-local function format_diff_for_action(action)
-  local workspace_edit = action:get_workspace_edit()
-  local diff = {}
+local function get_summary_line_formatted(text_document_edit)
+  local status_icon = get_text_document_edit_status_icon(text_document_edit.status)
+  local file_path = text_document_edit:get_document_path()
+  local line_number_statistics = text_document_edit:get_line_number_statistics()
+  local changes = '(+' .. line_number_statistics.added .. ' -' .. line_number_statistics.deleted .. ')'
+  return status_icon .. file_path .. ' ' .. changes
+end
 
-  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
-    local status_icon = get_text_document_edit_status_icon(text_document_edit.status)
-    local file_path = text_document_edit:get_document_path()
-    local line_number_statistics = text_document_edit:get_line_number_statistics()
-    local changes = '(+' .. line_number_statistics.added .. ' -' .. line_number_statistics.deleted .. ')'
-    local line = status_icon .. file_path .. ' ' .. changes
-    table.insert(diff, line)
+local function get_diff_lines_formatted(text_document_edit)
+  local diff_lines = {}
+
+  for _, changed_lines in ipairs(text_document_edit:get_diff_lines()) do
+    for _, context_line in ipairs(changed_lines.context_before) do
+      table.insert(diff_lines, ' ' .. context_line)
+    end
+
+    for _, deleted_line in ipairs(changed_lines.deleted) do
+      table.insert(diff_lines, '-' .. deleted_line)
+    end
+
+    for _, added_line in ipairs(changed_lines.added) do
+      table.insert(diff_lines, '+' .. added_line)
+    end
+
+    for _, context_line in ipairs(changed_lines.context_after) do
+      table.insert(diff_lines, ' ' .. context_line)
+    end
   end
 
-  return diff
+  return diff_lines
+end
+
+local function get_formatted_action_edit_diff(action)
+  local workspace_edit = action:get_workspace_edit()
+  local formatted_output = {}
+
+  for _, text_document_edit in ipairs(workspace_edit.all_text_document_edits) do
+    local summary_line = get_summary_line_formatted(text_document_edit)
+    table.insert(formatted_output, summary_line)
+
+    local diff_lines = get_diff_lines_formatted(text_document_edit)
+    vim.list_extend(formatted_output, diff_lines)
+  end
+
+  return formatted_output
 end
 
 local function get_diff_square_counts(text_document_edit)
@@ -93,13 +124,13 @@ end
 
 function DiffWindow:create_buffer()
   local buffer_number = vim.api.nvim_create_buf(false, true)
-  local diff = format_diff_for_action(self.action)
+  local content = get_formatted_action_edit_diff(self.action)
 
-  if #diff == 0 then
+  if #content == 0 then
     return -1
   end
 
-  vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, diff)
+  vim.api.nvim_buf_set_lines(buffer_number, 0, -1, false, content)
   vim.api.nvim_buf_set_option(buffer_number, 'filetype', 'code-action-menu-diff')
   add_colored_diff_square_as_virtual_text(buffer_number, self.action)
 

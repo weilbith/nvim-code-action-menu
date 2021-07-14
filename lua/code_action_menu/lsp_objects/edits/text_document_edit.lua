@@ -13,19 +13,6 @@ local function get_line_count_of_text(text)
   return line_count
 end
 
--- This assumes that all edits do only insert new text
-local function get_line_count_of_all_edits(all_edits)
-  vim.validate({['edits to count'] = { all_edits, 'table' }})
-  
-  local line_count = 0
-
-  for _, edit in ipairs(all_edits) do
-    line_count = line_count + get_line_count_of_text(edit.newText)
-  end
-  
-  return line_count
-end
-
 local function get_added_line_count_of_all_edits(all_edits)
   vim.validate({['edits to count'] = { all_edits, 'table' }})
 
@@ -71,6 +58,49 @@ local function get_line_count_of_file(uri)
   local text = vim.loop.fs_read(handle, statistics.size)
   vim.loop.fs_close(handle)
   return get_line_count_of_text(text)
+end
+
+local function get_list_of_added_lines_in_edit(uri, edit)
+  local added_lines = {}
+
+  for line in vim.gsplit(edit.newText, '\n', true) do
+    table.insert(added_lines, line)
+  end
+
+  local first_original_complete_line = vim.lsp.util.get_line(uri, edit.range.start.line)
+  local text_before_changes = first_original_complete_line:sub(0, edit.range.start.character)
+  added_lines[1] = text_before_changes .. added_lines[1]
+
+  local last_original_complete_line = vim.lsp.util.get_line(uri, edit.range['end'].line)
+
+  if #last_original_complete_line > edit.range['end'].character then
+    local text_after_changes = last_original_complete_line:sub(edit.range['end'].character + 1)
+    added_lines[#added_lines] = added_lines[#added_lines] .. text_after_changes
+  end
+
+  local line_index = edit.range.start.line
+
+  for index = 1, #added_lines, 1 do
+    added_lines[index] = line_index .. ' ' .. added_lines[index]
+    line_index = line_index + 1
+  end
+
+  return added_lines
+end
+
+local function get_list_of_original_lines(uri, start_line, end_line)
+  local original_lines = {}
+
+  for line_index = start_line, end_line, 1 do
+    local line = vim.lsp.util.get_line(uri, line_index)
+
+    if line ~= nil then
+      line = line_index .. ' ' .. line
+      table.insert(original_lines, line)
+    end
+  end
+
+  return original_lines
 end
 
 local TextDocumentEdit = {}
@@ -137,7 +167,7 @@ end
 -- Returns table with the key `added` and `deleted` with numbers as values
 function TextDocumentEdit:get_line_number_statistics()
   if self.status == TextDocumentEditStatusEnum.CREATED then
-    local added_line_count = get_line_count_of_all_edits(self.edits)
+    local added_line_count = get_added_line_count_of_all_edits(self.edits)
     return { added = added_line_count, deleted = 0 }
 
   elseif self.status == TextDocumentEditStatusEnum.DELETED then
@@ -151,27 +181,27 @@ function TextDocumentEdit:get_line_number_statistics()
   end
 end
 
-function TextDocumentEdit:get_number_of_deleted_lines()
-  local deleted_lines = {}
-  local number_of_deleted_lines = 0
+function TextDocumentEdit:get_diff_lines()
+  local all_diffs = {}
+  local context_line_count = 1
 
   for _, edit in ipairs(self.edits) do
-    local startLine = edit.range.start.line
-    local endLine = edit.range['end'].line
-    local text = edit.newText
+    local start_line = edit.range.start.line
+    local end_line = edit.range['end'].line
+    local context_before_lines = get_list_of_original_lines(self.uri, start_line - context_line_count, start_line - 1)
+    local deleted_lines = get_list_of_original_lines(self.uri, start_line, end_line)
+    local added_lines = get_list_of_added_lines_in_edit(self.uri, edit)
+    local context_after_lines = get_list_of_original_lines(self.uri, end_line + 1, end_line + context_line_count)
 
-    -- TODO: This includes lines where text gets deleted inside.
-    if #text == 0 then
-      for line = startLine, endLine do
-        if deleted_lines[line] == nil then
-          deleted_lines[line] = true
-          number_of_deleted_lines = number_of_deleted_lines + 1
-        end
-      end
-    end
+    table.insert(all_diffs, {
+      context_before = context_before_lines,
+      deleted = deleted_lines,
+      added = added_lines,
+      context_after = context_after_lines,
+    })
   end
 
-  return number_of_deleted_lines
+  return all_diffs
 end
 
 return TextDocumentEdit

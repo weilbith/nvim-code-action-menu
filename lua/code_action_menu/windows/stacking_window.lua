@@ -65,7 +65,9 @@ function StackingWindow:get_window_configuration(buffer_number, window_configura
   local border_height = last_window:get_option('zindex') and 2 or 0
 
   local window_height = shared_utils.get_buffer_height(buffer_number)
-  local window_width = window_configuration_options.use_buffer_width and shared_utils.get_buffer_width(buffer_number) or last_window:get_option('width')
+  local window_width = window_configuration_options.use_buffer_width and
+    shared_utils.get_buffer_width(buffer_number) + 1 or
+    last_window:get_option('width')
   local window_column = last_window:get_option('col')
   local window_row = 0
 
