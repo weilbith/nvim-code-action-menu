@@ -20,12 +20,17 @@ local function get_buffer_height(buffer_number)
 end
 
 local function request_servers_for_actions(use_range)
-  vim.validate({['request action for range'] = { use_range, 'boolean', true }})
+  vim.validate({ ['request action for range'] = { use_range, 'boolean', true } })
 
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
-  local parameters = use_range and vim.lsp.util.make_given_range_params() or vim.lsp.util.make_range_params()
+  local parameters = use_range and vim.lsp.util.make_given_range_params()
+    or vim.lsp.util.make_range_params()
   parameters.context = { diagnostics = line_diagnostics }
-  local all_responses = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', parameters) or {}
+  local all_responses = vim.lsp.buf_request_sync(
+    0,
+    'textDocument/codeAction',
+    parameters
+  ) or {}
   local all_actions = {}
 
   for _, client_response in ipairs(all_responses) do
@@ -60,7 +65,7 @@ local function order_actions(action_table, key_a, key_b)
 end
 
 local function get_ordered_action_table_keys(action_table)
-  vim.validate({['action table to sort'] = { action_table, 'table' }})
+  vim.validate({ ['action table to sort'] = { action_table, 'table' } })
   local keys = {}
 
   for key in pairs(action_table) do
@@ -77,7 +82,7 @@ end
 
 -- Put preferred actions at start, disabled at end
 local function iterate_actions_ordered(action_table)
-  vim.validate({['actions to sort'] = { action_table, 'table' }})
+  vim.validate({ ['actions to sort'] = { action_table, 'table' } })
 
   local keys = get_ordered_action_table_keys(action_table)
   local index = 0
@@ -92,7 +97,7 @@ local function iterate_actions_ordered(action_table)
 end
 
 local function get_action_at_index_ordered(action_table, index)
-  vim.validate({['actions to sort'] = { action_table, 'table' }})
+  vim.validate({ ['actions to sort'] = { action_table, 'table' } })
 
   local keys = get_ordered_action_table_keys(action_table)
   local key_for_index = keys[index]

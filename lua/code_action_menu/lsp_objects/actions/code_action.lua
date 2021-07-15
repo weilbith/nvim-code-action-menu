@@ -1,6 +1,10 @@
 local BaseAction = require('code_action_menu.lsp_objects.actions.base_action')
-local TextDocumentEdit = require('code_action_menu.lsp_objects.edits.text_document_edit')
-local WorkspaceEdit = require('code_action_menu.lsp_objects.edits.workspace_edit')
+local TextDocumentEdit = require(
+  'code_action_menu.lsp_objects.edits.text_document_edit'
+)
+local WorkspaceEdit = require(
+  'code_action_menu.lsp_objects.edits.workspace_edit'
+)
 
 local CodeAction = BaseAction:new({})
 
@@ -84,7 +88,11 @@ function CodeAction:execute()
   elseif self:is_command() then
     vim.lsp.buf.execute_command(self.server_data.command)
   else
-    vim.api.nvim_notify('Failed to execute code action of unknown kind!', vim.log.levels.ERROR, {})
+    vim.api.nvim_notify(
+      'Failed to execute code action of unknown kind!',
+      vim.log.levels.ERROR,
+      {}
+    )
   end
 end
 

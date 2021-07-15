@@ -2,7 +2,7 @@ local shared_utils = require('code_action_menu.shared_utils')
 local StackingWindow = require('code_action_menu.windows.stacking_window')
 
 local function format_summary_for_action(action, index)
-  vim.validate({['action to format summary for'] = { action, 'table' }})
+  vim.validate({ ['action to format summary for'] = { action, 'table' } })
 
   local formatted_index = ' [' .. index .. ']'
   local kind = '(' .. action:get_kind() .. ')'
@@ -14,7 +14,7 @@ end
 local MenuWindow = StackingWindow:new()
 
 function MenuWindow:new(all_actions)
-  vim.validate({['all code actions'] = { all_actions, 'table' }})
+  vim.validate({ ['all code actions'] = { all_actions, 'table' } })
 
   local instance = StackingWindow:new({ all_actions = all_actions })
   setmetatable(instance, self)

@@ -1,9 +1,11 @@
-local WorkspaceEdit = require('code_action_menu.lsp_objects.edits.workspace_edit')
+local WorkspaceEdit = require(
+  'code_action_menu.lsp_objects.edits.workspace_edit'
+)
 
 local BaseAction = {}
 
 function BaseAction:new(server_data)
-  vim.validate({['server data'] = { server_data, 'table' }})
+  vim.validate({ ['server data'] = { server_data, 'table' } })
 
   local instance = { server_data = server_data }
   setmetatable(instance, self)
@@ -40,7 +42,9 @@ function BaseAction:get_workspace_edit()
 end
 
 function BaseAction:execute()
-  error('Base actions can not be executed, but derived classes have to implement it!')
+  error(
+    'Base actions can not be executed, but derived classes have to implement it!'
+  )
 end
 
 return BaseAction

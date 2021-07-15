@@ -3,7 +3,9 @@ local AnchorWindow = require('code_action_menu.windows.anchor_window')
 local MenuWindow = require('code_action_menu.windows.menu_window')
 local DetailsWindow = require('code_action_menu.windows.details_window')
 local DiffWindow = require('code_action_menu.windows.diff_window')
-local WarningMessageWindow = require('code_action_menu.windows.warning_message_window')
+local WarningMessageWindow = require(
+  'code_action_menu.windows.warning_message_window'
+)
 
 local anchor_window_instance = nil
 local menu_window_instance = nil
@@ -73,8 +75,8 @@ local function update_selected_action()
   details_window_instance:open({
     window_stack = {
       anchor_window_instance,
-      menu_window_instance
-    }
+      menu_window_instance,
+    },
   })
 
   if diff_window_instance == nil then
@@ -87,8 +89,8 @@ local function update_selected_action()
     window_stack = {
       anchor_window_instance,
       menu_window_instance,
-      details_window_instance
-    }
+      details_window_instance,
+    },
   })
 end
 
@@ -96,7 +98,11 @@ local function execute_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
 
   if selected_action:is_disabled() then
-    vim.api.nvim_notify('Can not execute disabled action!', vim.log.levels.ERROR, {})
+    vim.api.nvim_notify(
+      'Can not execute disabled action!',
+      vim.log.levels.ERROR,
+      {}
+    )
   else
     close_code_action_menu() -- Close first to execute the action in the correct buffer.
     selected_action:execute()
@@ -104,9 +110,12 @@ local function execute_selected_action()
 end
 
 local function select_line_and_execute_action(line_number)
-  vim.validate({['to select menu line number'] = { line_number, 'number' }})
+  vim.validate({ ['to select menu line number'] = { line_number, 'number' } })
 
-  vim.api.nvim_win_set_cursor(menu_window_instance.window_number, { line_number, 0 })
+  vim.api.nvim_win_set_cursor(
+    menu_window_instance.window_number,
+    { line_number, 0 }
+  )
   execute_selected_action()
 end
 

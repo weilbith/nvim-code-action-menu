@@ -1,6 +1,8 @@
 local shared_utils = require('code_action_menu.shared_utils')
 local BaseWindow = require('code_action_menu.windows.base_window')
-local WindowStackDirectionEnum = require('code_action_menu.enumerations.window_stack_direction_enum')
+local WindowStackDirectionEnum = require(
+  'code_action_menu.enumerations.window_stack_direction_enum'
+)
 
 local function decide_for_direction(anchor_window)
   local editor_height = vim.api.nvim_get_option('lines')
@@ -10,9 +12,9 @@ local function decide_for_direction(anchor_window)
 
   -- We don't know how big the stack will grow. Therefore take the direction
   -- with more space left and hope it is enough in most cases.
-  return free_space_top > free_space_bottom and
-    WindowStackDirectionEnum.UPWARDS or
-    WindowStackDirectionEnum.DOWNWARDS
+  return free_space_top > free_space_bottom
+      and WindowStackDirectionEnum.UPWARDS
+    or WindowStackDirectionEnum.DOWNWARDS
 end
 
 local function get_stack_direction(window_stack)
@@ -25,9 +27,9 @@ local function get_stack_direction(window_stack)
   for index = 1, #window_stack - 1 do
     local current_row = window_stack[index]:get_option('row')
     local successor_row = window_stack[index + 1]:get_option('row')
-    local new_direction = current_row > successor_row and
-      WindowStackDirectionEnum.UPWARDS or
-      WindowStackDirectionEnum.DOWNWARDS
+    local new_direction = current_row > successor_row
+        and WindowStackDirectionEnum.UPWARDS
+      or WindowStackDirectionEnum.DOWNWARDS
 
     if direction == nil then
       direction = new_direction
@@ -53,10 +55,22 @@ end
 -- stacking window will be docked either on top or below the last window in
 -- the stack.
 function StackingWindow:get_window_configuration(window_configuration_options)
-  vim.validate({['buffer number to create window for'] = { self.buffer_number, 'number' }})
-  vim.validate({['window configuration options'] = { window_configuration_options, 'table' }})
-  vim.validate({['window stack'] = { window_configuration_options.window_stack, 'table' }})
-  vim.validate({['use buffer width'] = { window_configuration_options.user_buffer_width, 'boolean', true }})
+  vim.validate({
+    ['buffer number to create window for'] = { self.buffer_number, 'number' },
+  })
+  vim.validate({
+    ['window configuration options'] = { window_configuration_options, 'table' },
+  })
+  vim.validate({
+    ['window stack'] = { window_configuration_options.window_stack, 'table' },
+  })
+  vim.validate({
+    ['use buffer width'] = {
+      window_configuration_options.user_buffer_width,
+      'boolean',
+      true,
+    },
+  })
 
   local window_stack = window_configuration_options.window_stack
   local last_window = window_stack[#window_stack]
@@ -65,9 +79,9 @@ function StackingWindow:get_window_configuration(window_configuration_options)
   local border_height = last_window:get_option('zindex') and 2 or 0
 
   local window_height = shared_utils.get_buffer_height(self.buffer_number)
-  local window_width = window_configuration_options.use_buffer_width and
-    shared_utils.get_buffer_width(self.buffer_number) + 1 or
-    last_window:get_option('width')
+  local window_width = window_configuration_options.use_buffer_width
+      and shared_utils.get_buffer_width(self.buffer_number) + 1
+    or last_window:get_option('width')
   local window_column = last_window:get_option('col')
   local window_row = 0
 
@@ -75,7 +89,9 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     window_row = last_window:get_option('row') - window_height - border_height
     window_row = window_row - (last_window.is_anchor and 3 or 0)
   elseif stack_direction == WindowStackDirectionEnum.DOWNWARDS then
-    window_row = last_window:get_option('row')  + last_window:get_option('height') + border_height
+    window_row = last_window:get_option('row')
+      + last_window:get_option('height')
+      + border_height
   end
 
   return {
@@ -86,7 +102,7 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     height = window_height,
     focusable = false,
     style = 'minimal',
-    border = 'single'
+    border = 'single',
   }
 end
 

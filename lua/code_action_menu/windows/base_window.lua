@@ -59,7 +59,13 @@ function BaseWindow:get_window_configuration()
 end
 
 function BaseWindow:open(window_configuration_options)
-  vim.validate({['window configuration options'] = { window_configuration_options, 'table', true }})
+  vim.validate({
+    ['window configuration options'] = {
+      window_configuration_options,
+      'table',
+      true,
+    },
+  })
 
   if self.buffer_number == -1 then
     self:create_buffer()
@@ -67,10 +73,16 @@ function BaseWindow:open(window_configuration_options)
 
   self:update_buffer_content()
 
-  local window_configuration = self:get_window_configuration(window_configuration_options)
+  local window_configuration = self:get_window_configuration(
+    window_configuration_options
+  )
 
   if self.window_number == -1 then
-    self.window_number = vim.api.nvim_open_win(self.buffer_number, self.focusable, window_configuration)
+    self.window_number = vim.api.nvim_open_win(
+      self.buffer_number,
+      self.focusable,
+      window_configuration
+    )
     self.window_options = vim.api.nvim_win_get_config(self.window_number)
     vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
   end

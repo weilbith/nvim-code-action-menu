@@ -8,11 +8,15 @@ function WorkspaceEdit:new()
 end
 
 function WorkspaceEdit:add_text_document_edit(text_document_edit)
-  vim.validate({['to add text document edit'] = { text_document_edit, 'table' }})
+  vim.validate({
+    ['to add text document edit'] = { text_document_edit, 'table' },
+  })
 
   for _, existing_text_document_edit in ipairs(self.all_text_document_edits) do
     if existing_text_document_edit.uri == text_document_edit.uri then
-      existing_text_document_edit.merge_text_document_edit_for_same_uri(text_document_edit)
+      existing_text_document_edit.merge_text_document_edit_for_same_uri(
+        text_document_edit
+      )
       return
     end
   end
