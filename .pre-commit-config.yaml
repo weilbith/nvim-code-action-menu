@@ -1,0 +1,27 @@
+repos:
+  - repo: http://github.com/pre-commit/pre-commit-hooks
+    rev: v3.1.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+
+  - repo: https://github.com/Calinou/pre-commit-luacheck
+    rev: v1.0.0
+    hooks:
+      - id: luacheck
+
+  - repo: local
+    hooks:
+      - id: stylua
+        name: StyLua
+        entry: stylua
+        language: system
+        files: ^.*\.lua$
+
+  - repo: https://github.com/Vimjas/vint
+    rev: v0.4a4
+    hooks:
+      - id: vint
