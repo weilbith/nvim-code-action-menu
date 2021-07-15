@@ -48,7 +48,9 @@ local function open_code_action_menu()
   if #all_actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()
     warning_message_window_instace:open()
-    vim.api.nvim_command('autocmd! CursorMoved <buffer> ++once lua require("code_action_menu").close_warning_message_window()')
+    vim.api.nvim_command(
+      'autocmd! CursorMoved <buffer> ++once lua require("code_action_menu").close_warning_message_window()'
+    )
   else
     anchor_window_instance = AnchorWindow:new()
     menu_window_instance = MenuWindow:new(all_actions)

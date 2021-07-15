@@ -1,6 +1,6 @@
 local BaseWindow = require('code_action_menu.windows.base_window')
 
-WarningMessageWindow = BaseWindow:new()
+local WarningMessageWindow = BaseWindow:new()
 
 function WarningMessageWindow:new()
   local instance = BaseWindow:new()

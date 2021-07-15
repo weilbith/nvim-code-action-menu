@@ -69,12 +69,12 @@ local function get_diff_square_counts(text_document_edit)
   }
 end
 
-function get_count_of_edits_diff_lines(text_document_edit)
+local function get_count_of_edits_diff_lines(text_document_edit)
   local diff_lines = get_diff_lines_formatted(text_document_edit)
   return #diff_lines
 end
 
-DiffWindow = StackingWindow:new()
+local DiffWindow = StackingWindow:new()
 
 function DiffWindow:new(action)
   vim.validate({['diff window action'] = { action, 'table' }})

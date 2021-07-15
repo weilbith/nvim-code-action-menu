@@ -17,8 +17,10 @@ nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu(
 " Do this before the CursorMoved auto-command.
 call feedkeys('jk')
 
-autocmd! CursorMoved <buffer> lua require('code_action_menu').update_selected_action()
-
-autocmd User CodeActionMenuWindowOpened ++once set scrolloff=0
-autocmd User CodeActionMenuWindowOpened ++once set cursorline
-autocmd User CodeActionMenuWindowOpened ++once set winhighlight=CursorLine:CodeActionMenuMenuSelection
+augroup CodeActionMenuMenu
+  autocmd!
+  autocmd CursorMoved <buffer> lua require('code_action_menu').update_selected_action()
+  autocmd User CodeActionMenuWindowOpened ++once set scrolloff=0
+  autocmd User CodeActionMenuWindowOpened ++once set cursorline
+  autocmd User CodeActionMenuWindowOpened ++once set winhighlight=CursorLine:CodeActionMenuMenuSelection
+augroup END

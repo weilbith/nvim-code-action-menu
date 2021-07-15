@@ -39,7 +39,7 @@ local function get_stack_direction(window_stack)
   return direction
 end
 
-StackingWindow = BaseWindow:new()
+local StackingWindow = BaseWindow:new()
 
 function StackingWindow:new(base_object)
   local instance = BaseWindow:new(base_object)

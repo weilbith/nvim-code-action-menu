@@ -30,7 +30,7 @@ local function request_servers_for_actions(use_range)
 
   for _, client_response in ipairs(all_responses) do
     for _, data in ipairs(client_response.result or {}) do
-      local action = nil
+      local action
 
       if type(data.edit) == 'table' or type(data.command) == 'table' then
         action = CodeAction:new(data)

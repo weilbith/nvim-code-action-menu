@@ -1,6 +1,6 @@
 local StackingWindow = require('code_action_menu.windows.stacking_window')
 
-DetailsWindow = StackingWindow:new()
+local DetailsWindow = StackingWindow:new()
 
 function DetailsWindow:new(action)
   vim.validate({['details window action'] = { action, 'table' }})
