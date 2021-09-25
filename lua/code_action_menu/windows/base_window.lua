@@ -30,16 +30,12 @@ function BaseWindow:update_buffer_content()
 
   local content = self:get_content()
 
-  if #content == 0 then
-    self:close() -- This window might be already open and should be closed then.
-  else
-    -- Unset and set the filtype option removes temporally th read-only property
-    vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', '')
-    vim.api.nvim_buf_set_lines(self.buffer_number, 0, -1, false, content)
-    vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', self.filetype)
+  -- Unset and set the filtype option removes temporally th read-only property
+  vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', '')
+  vim.api.nvim_buf_set_lines(self.buffer_number, 0, -1, false, content)
+  vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', self.filetype)
 
-    self:update_virtual_text()
-  end
+  self:update_virtual_text()
 end
 
 function BaseWindow:create_buffer()
@@ -48,7 +44,7 @@ function BaseWindow:create_buffer()
   vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', self.filetype)
 end
 
-function BaseWindow:get_window_configuration()
+function BaseWindow:get_window_configuration(_)
   local buffer_width = shared_utils.get_buffer_width(self.buffer_number) + 1
   local buffer_height = shared_utils.get_buffer_height(self.buffer_number)
   return vim.lsp.util.make_floating_popup_options(
@@ -72,6 +68,12 @@ function BaseWindow:open(window_configuration_options)
   end
 
   self:update_buffer_content()
+
+  if shared_utils.is_buffer_empty(self.buffer_number) then
+    self:delete_buffer()
+    self:close()
+    return
+  end
 
   local window_configuration = self:get_window_configuration(
     window_configuration_options
@@ -103,6 +105,11 @@ function BaseWindow:get_option(name)
       return option
     end
   end
+end
+
+function BaseWindow:delete_buffer()
+  pcall(vim.api.nvim_buf_delete, self.buffer_number, { force = true })
+  self.buffer_number = -1
 end
 
 function BaseWindow:close()

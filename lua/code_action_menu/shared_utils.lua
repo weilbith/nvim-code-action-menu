@@ -19,6 +19,12 @@ local function get_buffer_height(buffer_number)
   return #buffer_lines
 end
 
+local function is_buffer_empty(buffer_number)
+  local buffer_lines = vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
+  return #buffer_lines == 0 or (#buffer_lines == 1 and #buffer_lines[1] == 0)
+end
+
+
 local function request_servers_for_actions(use_range)
   vim.validate({ ['request action for range'] = { use_range, 'boolean', true } })
 
@@ -107,6 +113,7 @@ end
 return {
   get_buffer_width = get_buffer_width,
   get_buffer_height = get_buffer_height,
+  is_buffer_empty = is_buffer_empty,
   request_servers_for_actions = request_servers_for_actions,
   iterate_actions_ordered = iterate_actions_ordered,
   get_action_at_index_ordered = get_action_at_index_ordered,
