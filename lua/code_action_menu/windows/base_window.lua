@@ -87,9 +87,9 @@ function BaseWindow:open(window_configuration_options)
     )
     self.window_options = vim.api.nvim_win_get_config(self.window_number)
     vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
+  else
+    vim.api.nvim_win_set_config(self.window_number, window_configuration)
   end
-
-  vim.api.nvim_win_set_height(self.window_number, window_configuration.height)
 end
 
 function BaseWindow:get_option(name)
