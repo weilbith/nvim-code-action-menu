@@ -47,6 +47,7 @@ function StackingWindow:new(base_object)
   local instance = BaseWindow:new(base_object)
   setmetatable(instance, self)
   self.__index = self
+  self.window_stack = {}
   return instance
 end
 
@@ -72,16 +73,14 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     },
   })
 
-  local window_stack = window_configuration_options.window_stack
-  local last_window = window_stack[#window_stack]
-  local stack_direction = get_stack_direction(window_stack)
+  self.window_stack = window_configuration_options.window_stack
+  local last_window = self.window_stack[#self.window_stack]
+  local stack_direction = get_stack_direction(self.window_stack)
   -- This makes the simplification to assume that all floating windows have a border...
   local border_height = last_window:get_option('zindex') and 2 or 0
 
   local window_height = shared_utils.get_buffer_height(self.buffer_number)
-  local window_width = window_configuration_options.use_buffer_width
-      and shared_utils.get_buffer_width(self.buffer_number) + 1
-    or last_window:get_option('width')
+  local window_width = shared_utils.get_buffer_width(self.buffer_number) + 1
   local window_column = last_window:get_option('col')
   local window_row = 0
 
@@ -104,6 +103,29 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     style = 'minimal',
     border = 'single',
   }
+end
+
+-- This function makes sure that all windows in a stack have the same size which
+-- relates to the widest buffer.
+-- It makes the assumation that stack windows get opened one after each other.
+-- This means that we only need to check the last window in the stack because
+-- all other windows must have the same width as well. Just because for each of
+-- them this function has run.
+function StackingWindow:after_opened()
+  local last_window = self.window_stack[#self.window_stack]
+
+  if not last_window.is_anchor then
+    local own_width = vim.api.nvim_win_get_width(self.window_number)
+    local last_window_width = vim.api.nvim_win_get_width(last_window.window_number)
+
+    if last_window_width >= own_width then
+      self:set_window_width(last_window_width)
+    else
+      for _, window in ipairs(self.window_stack) do
+        window:set_window_width(own_width)
+      end
+    end
+  end
 end
 
 return StackingWindow

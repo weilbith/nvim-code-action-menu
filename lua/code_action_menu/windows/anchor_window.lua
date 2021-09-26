@@ -17,6 +17,7 @@ function AnchorWindow:new()
   local instance = BaseWindow:new({ is_anchor = true })
   setmetatable(instance, self)
   self.__index = self
+  self.is_anchor = true
   self.window_number = window_number
   self.window_options = {
     row = { [false] = window_position[1] + cursor_row },

@@ -58,7 +58,6 @@ local function open_code_action_menu()
     menu_window_instance = MenuWindow:new(all_actions)
     menu_window_instance:open({
       window_stack = { anchor_window_instance },
-      use_buffer_width = true,
     })
   end
 end

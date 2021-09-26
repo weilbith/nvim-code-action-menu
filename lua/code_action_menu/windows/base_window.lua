@@ -90,6 +90,16 @@ function BaseWindow:open(window_configuration_options)
   else
     vim.api.nvim_win_set_config(self.window_number, window_configuration)
   end
+
+  self:after_opened()
+end
+
+function BaseWindow:after_opened()
+  return
+end
+
+function BaseWindow:set_window_width(width)
+  pcall(vim.api.nvim_win_set_width, self.window_number, width)
 end
 
 function BaseWindow:get_option(name)
