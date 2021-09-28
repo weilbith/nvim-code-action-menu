@@ -175,7 +175,7 @@ function TextDocumentEdit:get_document_path()
 
   if absolute_path:find(current_working_directory, 1, true) then
     return absolute_path:sub(current_working_directory:len() + 2)
-  elseif absolute_path:find(home_directory, 1, true) then
+  elseif home_directory ~= nil and absolute_path:find(home_directory, 1, true) then
     return absolute_path:sub(home_directory:len() + 2)
   else
     return absolute_path
