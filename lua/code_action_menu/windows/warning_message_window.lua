@@ -6,7 +6,6 @@ function WarningMessageWindow:new()
   local instance = BaseWindow:new()
   setmetatable(instance, self)
   self.__index = self
-  self.buffer_name = 'CodeActionMenuWarningMessage'
   self.filetype = 'code-action-menu-warning-message'
   return instance
 end

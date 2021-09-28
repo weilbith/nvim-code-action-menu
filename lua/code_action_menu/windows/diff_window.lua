@@ -100,7 +100,6 @@ function DiffWindow:new(action)
   local instance = StackingWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
-  self.buffer_name = 'CodeActionMenuDiff'
   self.filetype = 'code-action-menu-diff'
   return instance
 end

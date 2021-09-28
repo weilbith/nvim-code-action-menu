@@ -4,7 +4,6 @@ local BaseWindow = {
   window_number = -1,
   window_options = nil,
   buffer_number = -1,
-  buffer_name = 'CodeActionMenuBase',
   focusable = false,
   filetype = '',
   namespace_id = vim.api.nvim_create_namespace('code_action_menu'),
@@ -40,7 +39,6 @@ end
 
 function BaseWindow:create_buffer()
   self.buffer_number = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_name(self.buffer_number, self.buffer_name)
   vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', self.filetype)
 end
 

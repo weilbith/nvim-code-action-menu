@@ -8,7 +8,6 @@ function DetailsWindow:new(action)
   local instance = StackingWindow:new({ action = action })
   setmetatable(instance, self)
   self.__index = self
-  self.buffer_name = 'CodeActionMenuDetails'
   self.filetype = 'code-action-menu-details'
   return instance
 end
