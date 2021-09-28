@@ -5,6 +5,8 @@
 > it has not been tested with many language servers. Moreover there is a good
 > amount of documentation missing.
 
+![gscreenshot_2021-09-28-094359](https://user-images.githubusercontent.com/12543647/135045142-dedfe9bb-01a0-4ed0-8d40-1dc4f2c2b254.png)
+
 This plugin provides a handy pop-up menu for code actions. Its key competence is
 to provide the user with more detailed insights for each available code action.
 Such include meta data as well as a preview diff for certain types of actions.
