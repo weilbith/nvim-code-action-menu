@@ -39,7 +39,7 @@ local function request_servers_for_actions(use_range)
   ) or {}
   local all_actions = {}
 
-  for _, client_response in ipairs(all_responses) do
+  for _, client_response in pairs(all_responses) do
     for _, data in ipairs(client_response.result or {}) do
       local action
 
