@@ -20,7 +20,6 @@ function MenuWindow:new(all_actions)
   setmetatable(instance, self)
   self.__index = self
   self.focusable = true
-  self.buffer_name = 'CodeActionMenuMenu'
   self.filetype = 'code-action-menu-menu'
   return instance
 end
