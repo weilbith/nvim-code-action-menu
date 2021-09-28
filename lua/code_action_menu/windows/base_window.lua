@@ -123,6 +123,7 @@ function BaseWindow:delete_buffer()
 end
 
 function BaseWindow:close()
+  self:delete_buffer()
   pcall(vim.api.nvim_win_close, self.window_number, true)
   self.window_number = -1
 end
