@@ -56,6 +56,9 @@ Furthermore is quite handy to also use the
 automatically inform the user visually if any code actions are available for the
 current cursor location.
 
+Please note that LSP and other features for this plugin require you to have at
+least `v0.5.0` of NeoVim.
+
 ## Usage
 
 The plugin has a single command only: `CodeActionMenu` This command works in
