@@ -24,6 +24,63 @@ local function is_buffer_empty(buffer_number)
   return #buffer_lines == 0 or (#buffer_lines == 1 and #buffer_lines[1] == 0)
 end
 
+local function resolve_code_action(client_id, server_data)
+  vim.validate({ ['action to resolve'] = { server_data, 'table' } })
+
+  local client = vim.lsp.get_client_by_id(client_id)
+
+  if client ~= nil then
+    return client.request_sync('codeAction/resolve', server_data, 0, 0)
+  else
+    vim.api.nvim_notify(
+      'Failed to resolve action for unknown client!',
+      vim.log.levels.WARN,
+      {}
+    )
+    return nil
+  end
+end
+
+local function parse_server_data_as_action(server_data)
+  if type(server_data) == 'table' and type(server_data.command) == 'string' then
+    return Command:new(server_data)
+  elseif
+    type(server_data) == 'table'
+    and (
+      type(server_data.edit) == 'table'
+      or type(server_data.command) == 'table'
+    )
+  then
+    return CodeAction:new(server_data)
+  else
+    vim.api.nvim_notify(
+      'Failed to parse unknown code action or command data structure! Skipped.',
+      vim.log.levels.WARN,
+      {}
+    )
+    return nil
+  end
+end
+
+local function parse_code_action_responses(all_responses)
+  local all_actions = {}
+
+  for client_id, client_response in pairs(all_responses) do
+    for _, server_data in ipairs(client_response.result or {}) do
+      if type(server_data) == 'table' and server_data.data ~= nil then
+        server_data = resolve_code_action(client_id, server_data)
+      end
+
+      local action = parse_server_data_as_action(server_data)
+
+      if action ~= nil then
+        table.insert(all_actions, action)
+      end
+    end
+  end
+
+  return all_actions
+end
 
 local function request_servers_for_actions(use_range)
   vim.validate({ ['request action for range'] = { use_range, 'boolean', true } })
@@ -31,29 +88,16 @@ local function request_servers_for_actions(use_range)
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
   local parameters = use_range and vim.lsp.util.make_given_range_params()
     or vim.lsp.util.make_range_params()
+
   parameters.context = { diagnostics = line_diagnostics }
+
   local all_responses = vim.lsp.buf_request_sync(
     0,
     'textDocument/codeAction',
     parameters
   ) or {}
-  local all_actions = {}
 
-  for _, client_response in pairs(all_responses) do
-    for _, data in ipairs(client_response.result or {}) do
-      local action
-
-      if type(data.edit) == 'table' or type(data.command) == 'table' then
-        action = CodeAction:new(data)
-      else
-        action = Command:new(data)
-      end
-
-      table.insert(all_actions, action)
-    end
-  end
-
-  return all_actions
+  return parse_code_action_responses(all_responses)
 end
 
 local function order_actions(action_table, key_a, key_b)
