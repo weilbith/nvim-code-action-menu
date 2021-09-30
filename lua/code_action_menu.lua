@@ -1,4 +1,4 @@
-local shared_utils = require('code_action_menu.shared_utils')
+local action_utils = require('code_action_menu.utility_functions.actions')
 local AnchorWindow = require('code_action_menu.windows.anchor_window')
 local MenuWindow = require('code_action_menu.windows.menu_window')
 local DetailsWindow = require('code_action_menu.windows.details_window')
@@ -45,7 +45,7 @@ local function open_code_action_menu()
   close_warning_message_window()
 
   local use_range = vim.api.nvim_get_mode().mode ~= 'n'
-  local all_actions = shared_utils.request_servers_for_actions(use_range)
+  local all_actions = action_utils.request_servers_for_actions(use_range)
 
   if #all_actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()

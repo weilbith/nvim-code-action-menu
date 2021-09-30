@@ -1,4 +1,4 @@
-local shared_utils = require('code_action_menu.shared_utils')
+local buffer_utils = require('code_action_menu.utility_functions.buffers')
 
 local BaseWindow = {
   window_number = -1,
@@ -43,8 +43,8 @@ function BaseWindow:create_buffer()
 end
 
 function BaseWindow:get_window_configuration(_)
-  local buffer_width = shared_utils.get_buffer_width(self.buffer_number) + 1
-  local buffer_height = shared_utils.get_buffer_height(self.buffer_number)
+  local buffer_width = buffer_utils.get_buffer_width(self.buffer_number) + 1
+  local buffer_height = buffer_utils.get_buffer_height(self.buffer_number)
   return vim.lsp.util.make_floating_popup_options(
     buffer_width,
     buffer_height,
@@ -67,7 +67,7 @@ function BaseWindow:open(window_configuration_options)
 
   self:update_buffer_content()
 
-  if shared_utils.is_buffer_empty(self.buffer_number) then
+  if buffer_utils.is_buffer_empty(self.buffer_number) then
     self:delete_buffer()
     self:close()
     return

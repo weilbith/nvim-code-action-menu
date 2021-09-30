@@ -1,4 +1,4 @@
-local shared_utils = require('code_action_menu.shared_utils')
+local buffer_utils = require('code_action_menu.utility_functions.buffers')
 local BaseWindow = require('code_action_menu.windows.base_window')
 local WindowStackDirectionEnum = require(
   'code_action_menu.enumerations.window_stack_direction_enum'
@@ -79,8 +79,8 @@ function StackingWindow:get_window_configuration(window_configuration_options)
   -- This makes the simplification to assume that all floating windows have a border...
   local border_height = last_window:get_option('zindex') and 2 or 0
 
-  local window_height = shared_utils.get_buffer_height(self.buffer_number)
-  local window_width = shared_utils.get_buffer_width(self.buffer_number) + 1
+  local window_height = buffer_utils.get_buffer_height(self.buffer_number)
+  local window_width = buffer_utils.get_buffer_width(self.buffer_number) + 1
   local window_column = last_window:get_option('col')
   local window_row = 0
 
@@ -116,7 +116,9 @@ function StackingWindow:after_opened()
 
   if not last_window.is_anchor then
     local own_width = vim.api.nvim_win_get_width(self.window_number)
-    local last_window_width = vim.api.nvim_win_get_width(last_window.window_number)
+    local last_window_width = vim.api.nvim_win_get_width(
+      last_window.window_number
+    )
 
     if last_window_width >= own_width then
       self:set_window_width(last_window_width)
