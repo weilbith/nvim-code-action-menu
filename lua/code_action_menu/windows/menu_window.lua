@@ -1,4 +1,4 @@
-local shared_utils = require('code_action_menu.shared_utils')
+local action_utils = require('code_action_menu.utility_functions.actions')
 local StackingWindow = require('code_action_menu.windows.stacking_window')
 
 local function format_summary_for_action(action, index)
@@ -27,7 +27,7 @@ end
 function MenuWindow:get_content()
   local content = {}
 
-  for index, action in shared_utils.iterate_actions_ordered(self.all_actions) do
+  for index, action in action_utils.iterate_actions_ordered(self.all_actions) do
     local line = format_summary_for_action(action, index)
     table.insert(content, line)
   end
@@ -41,7 +41,7 @@ function MenuWindow:get_selected_action()
   else
     local cursor = vim.api.nvim_win_get_cursor(self.window_number)
     local line = cursor[1]
-    return shared_utils.get_action_at_index_ordered(self.all_actions, line)
+    return action_utils.get_action_at_index_ordered(self.all_actions, line)
   end
 end
 

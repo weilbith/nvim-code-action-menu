@@ -1,29 +1,6 @@
 local Command = require('code_action_menu.lsp_objects.actions.command')
 local CodeAction = require('code_action_menu.lsp_objects.actions.code_action')
 
-local function get_buffer_width(buffer_number)
-  local buffer_lines = vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
-  local longest_line = ''
-
-  for _, line in ipairs(buffer_lines) do
-    if #line > #longest_line then
-      longest_line = line
-    end
-  end
-
-  return #longest_line
-end
-
-local function get_buffer_height(buffer_number)
-  local buffer_lines = vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
-  return #buffer_lines
-end
-
-local function is_buffer_empty(buffer_number)
-  local buffer_lines = vim.api.nvim_buf_get_lines(buffer_number, 0, -1, false)
-  return #buffer_lines == 0 or (#buffer_lines == 1 and #buffer_lines[1] == 0)
-end
-
 local function resolve_code_action(client_id, server_data)
   vim.validate({ ['action to resolve'] = { server_data, 'table' } })
 
@@ -155,9 +132,6 @@ local function get_action_at_index_ordered(action_table, index)
 end
 
 return {
-  get_buffer_width = get_buffer_width,
-  get_buffer_height = get_buffer_height,
-  is_buffer_empty = is_buffer_empty,
   request_servers_for_actions = request_servers_for_actions,
   iterate_actions_ordered = iterate_actions_ordered,
   get_action_at_index_ordered = get_action_at_index_ordered,
