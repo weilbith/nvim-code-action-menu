@@ -66,7 +66,7 @@ function CodeAction:get_workspace_edit()
       workspace_edit:add_text_document_edit(text_document_edit)
     end
 
-    for uri, edits in ipairs(self.server_data.edit.changes or {}) do
+    for uri, edits in pairs(self.server_data.edit.changes or {}) do
       local data = { uri = uri, edits = edits }
       local text_document_edit = TextDocumentEdit:new(data)
       workspace_edit:add_text_document_edit(text_document_edit)
