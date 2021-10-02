@@ -45,7 +45,7 @@ local function open_code_action_menu()
   close_warning_message_window()
 
   local use_range = vim.api.nvim_get_mode().mode ~= 'n'
-  local all_actions = action_utils.request_servers_for_actions(use_range)
+  local all_actions = action_utils.request_actions_from_all_servers(use_range)
 
   if #all_actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()
