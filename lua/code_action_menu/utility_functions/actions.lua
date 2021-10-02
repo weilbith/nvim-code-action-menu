@@ -1,80 +1,116 @@
 local Command = require('code_action_menu.lsp_objects.actions.command')
 local CodeAction = require('code_action_menu.lsp_objects.actions.code_action')
 
-local function resolve_code_action(client_id, server_data)
-  vim.validate({ ['action to resolve'] = { server_data, 'table' } })
-
+local function unpack_result_and_error(server_data, client_id)
   local client = vim.lsp.get_client_by_id(client_id)
+  local result = nil
+  local error = nil
 
-  if client ~= nil then
-    return client.request_sync('codeAction/resolve', server_data, 0, 0)
+  if server_data == nil then
+    error = "Server for client '" .. client.name .. "' not yet ready!"
+  elseif type(server_data) == 'table' and server_data.err ~= nil then
+    error = "Server of client '" .. client.name .. "' returned error: "
+
+    if type(server_data.err) == 'string' then
+      error = error .. server_data.err
+    elseif type(server_data.err) == 'table' and type(server_data.err.message) == 'string' then
+      error = error .. server_data.err.message
+    else
+      error = error .. 'unknown error - failed to parse response'
+    end
+  elseif type(server_data) == 'table' and server_data.result then
+    result = server_data.result
   else
-    vim.api.nvim_notify(
-      'Failed to resolve action for unknown client!',
-      vim.log.levels.WARN,
-      {}
-    )
-    return nil
+    result = server_data
   end
+
+  return result, error
 end
 
-local function parse_server_data_as_action(server_data)
-  if type(server_data) == 'table' and type(server_data.command) == 'string' then
-    return Command:new(server_data)
+local function resolve_code_action(client_id, code_action_object)
+  local client = vim.lsp.get_client_by_id(client_id)
+  local response = client.request_sync('codeAction/resolve', code_action_object)
+  local action_object, error = unpack_result_and_error(response, client_id)
+
+  if error then
+    vim.api.nvim_notify(error, vim.log.levels.WARN, {})
+  end
+
+  return action_object
+end
+
+local function parse_object_as_action(code_action_object)
+  if type(code_action_object) == 'table' and type(code_action_object.command) == 'string' then
+    return Command:new(code_action_object)
   elseif
-    type(server_data) == 'table'
+    type(code_action_object) == 'table'
     and (
-      type(server_data.edit) == 'table'
-      or type(server_data.command) == 'table'
+      type(code_action_object.edit) == 'table'
+      or type(code_action_object.command) == 'table'
     )
   then
-    return CodeAction:new(server_data)
+    return CodeAction:new(code_action_object)
   else
-    vim.api.nvim_notify(
-      'Failed to parse unknown code action or command data structure! Skipped.',
-      vim.log.levels.WARN,
-      {}
-    )
+    local error = 'Failed to parse unknown code action or command data structure! Skipped.'
+    vim.api.nvim_notify(error, vim.log.levels.WARN, {})
     return nil
   end
 end
 
-local function parse_code_action_responses(all_responses)
+local function parse_action_data_objects(client_id, all_code_action_objects)
   local all_actions = {}
 
-  for client_id, client_response in pairs(all_responses) do
-    for _, server_data in ipairs(client_response.result or {}) do
-      if type(server_data) == 'table' and server_data.data ~= nil then
-        server_data = resolve_code_action(client_id, server_data)
-      end
+  for _, code_action_object in ipairs(all_code_action_objects) do
+    if type(code_action_object) == 'table' and code_action_object.data ~= nil then
+      code_action_object = resolve_code_action(client_id, code_action_object)
+    end
 
-      local action = parse_server_data_as_action(server_data)
+    local action = parse_object_as_action(code_action_object)
 
-      if action ~= nil then
-        table.insert(all_actions, action)
-      end
+    if action ~= nil then
+      table.insert(all_actions, action)
     end
   end
 
   return all_actions
 end
 
-local function request_servers_for_actions(use_range)
+local function request_actions_from_server(client_id, parameters)
+  local client = vim.lsp.get_client_by_id(client_id)
+
+  if not client.supports_method('textDocument/codeAction') then
+    return {}
+  end
+
+  local response = client.request_sync('textDocument/codeAction', parameters)
+  local action_objects, error = unpack_result_and_error(response, client_id)
+
+  if error then
+    vim.api.nvim_notify(error, vim.log.levels.WARN, {})
+  end
+
+  return action_objects or {}
+end
+
+local function request_actions_from_all_servers(use_range)
   vim.validate({ ['request action for range'] = { use_range, 'boolean', true } })
 
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
-  local parameters = use_range and vim.lsp.util.make_given_range_params()
+  local request_parameters = use_range and vim.lsp.util.make_given_range_params()
     or vim.lsp.util.make_range_params()
 
-  parameters.context = { diagnostics = line_diagnostics }
+  request_parameters.context = { diagnostics = line_diagnostics }
 
-  local all_responses = vim.lsp.buf_request_sync(
-    0,
-    'textDocument/codeAction',
-    parameters
-  ) or {}
+  local all_clients = vim.lsp.buf_get_clients()
+  local all_actions = {}
 
-  return parse_code_action_responses(all_responses)
+  for _, client in ipairs(all_clients) do
+    local action_data_objects = request_actions_from_server(client.id, request_parameters)
+    local actions = parse_action_data_objects(client.id, action_data_objects)
+    vim.list_extend(all_actions, actions)
+  end
+
+  return all_actions
 end
 
 local function order_actions(action_table, key_a, key_b)
@@ -132,7 +168,7 @@ local function get_action_at_index_ordered(action_table, index)
 end
 
 return {
-  request_servers_for_actions = request_servers_for_actions,
+  request_actions_from_all_servers = request_actions_from_all_servers,
   iterate_actions_ordered = iterate_actions_ordered,
   get_action_at_index_ordered = get_action_at_index_ordered,
 }
