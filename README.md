@@ -66,7 +66,7 @@ normal mode, as well as visual mode. For the latter mode it will switch to the
 code range mode automatically.
 The menu can be navigated as usual with `j` and `k`. The docked windows will
 always display further information for the currently selected action. Hitting
-`CR>` will execute the currently selected code action. Alternatively you can
+`<CR>` will execute the currently selected code action. Alternatively you can
 type the number in front of the list entry to jump directly to this action and
 apply it right away. In any case the menu window will close itself. If you want
 to manually close the window without selecting an action, just hit `<Esc>` or
