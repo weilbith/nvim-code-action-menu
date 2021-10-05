@@ -11,17 +11,18 @@ This plugin provides a handy pop-up menu for code actions. Its key competence is
 to provide the user with more detailed insights for each available code action.
 Such include meta data as well as a preview diff for certain types of actions.
 These includes:
-  - descriptive title (usually shown by all code action "menu" solutions)
-  - kind of the action (e.g. refactor, command, quickfix, organize imports, ...)
-  - name of the action
-  - if the action is the preferred one according to the server (preferred
-    actions get automatically sorted to the top of the menu)
-  - if the action is disabled (disabled actions can be used and get
-    automatically sorted to the bottom of the menu with a special hightlight)
-  - a preview of the changes this action will do in a diff view for all affected
-    files (includes a diff count box visualization as GitHub pul requests do)
-  - ...more will come, especially when servers start to use the `dataSupport`
-    capability for the code action provider
+
+- descriptive title (usually shown by all code action "menu" solutions)
+- kind of the action (e.g. refactor, command, quickfix, organize imports, ...)
+- name of the action
+- if the action is the preferred one according to the server (preferred
+  actions get automatically sorted to the top of the menu)
+- if the action is disabled (disabled actions can be used and get
+  automatically sorted to the bottom of the menu with a special hightlight)
+- a preview of the changes this action will do in a diff view for all affected
+  files (includes a diff count box visualization as GitHub pul requests do)
+- ...more will come, especially when servers start to use the `dataSupport`
+  capability for the code action provider
 
 The experience for all these features might vary according to the implementation
 of the used language server. Especially for the diff view, do some servers still
@@ -59,6 +60,17 @@ current cursor location.
 Please note that LSP and other features for this plugin require you to have at
 least `v0.5.0` of NeoVim.
 
+## Configuration
+
+by default
+
+```lua
+require('code_action_menu.config').setup {
+  source = 'nvim_lsp', -- available values: nvim_lsp, coc
+  window_options = {}, -- additional options for code-aciton-menu windows
+}
+```
+
 ## Usage
 
 The plugin has a single command only: `CodeActionMenu` This command works in
@@ -71,6 +83,15 @@ type the number in front of the list entry to jump directly to this action and
 apply it right away. In any case the menu window will close itself. If you want
 to manually close the window without selecting an action, just hit `<Esc>` or
 `q`.
+
+If you are using coc.nvim, just change the mappings
+
+| Original                          | Now                                |
+| --------------------------------- | ---------------------------------- |
+| `<Plug>(coc-codeaction-selected)` | `<Plug>(codeaction-selected-menu)` |
+| `<Plug>(coc-codeaction)`          | `<Plug>(codeaction-menu)`          |
+| `<Plug>(coc-codeaction-line)`     | `<Plug>(codeaction-line-menu)`     |
+| `<Plug>(coc-codeaction-cursor)`   | `<Plug>(codeaction-cursor-menu)`   |
 
 ## Customization
 
@@ -86,3 +107,7 @@ files yourself and get the full power of customization.
 At the current state of documentation I must redirect you to the syntax files in
 the source code of the plugin to get a list of available highlight groups. The
 user can simply overwrite any of the default mappings to his liking.
+
+```
+
+```
