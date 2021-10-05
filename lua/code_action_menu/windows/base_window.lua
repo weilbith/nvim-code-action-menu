@@ -1,10 +1,10 @@
 local buffer_utils = require('code_action_menu.utility_functions.buffers')
+local config = require('code_action_menu.config')
 
 local BaseWindow = {
   window_number = -1,
   window_options = nil,
   buffer_number = -1,
-  focusable = false,
   filetype = '',
   namespace_id = vim.api.nvim_create_namespace('code_action_menu'),
 }
@@ -80,13 +80,17 @@ function BaseWindow:open(window_configuration_options)
   if self.window_number == -1 then
     self.window_number = vim.api.nvim_open_win(
       self.buffer_number,
-      self.focusable,
+      config.window_focusable,
       window_configuration
     )
     self.window_options = vim.api.nvim_win_get_config(self.window_number)
     vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
   else
     vim.api.nvim_win_set_config(self.window_number, window_configuration)
+  end
+
+  for name, value in pairs(config.window_options) do
+    vim.api.nvim_win_set_option(self.window_number, name, value)
   end
 
   self:after_opened()

@@ -5,6 +5,7 @@ local TextDocumentEdit = require(
 local WorkspaceEdit = require(
   'code_action_menu.lsp_objects.edits.workspace_edit'
 )
+local config = require('code_action_menu.config')
 
 local Command = BaseAction:new({})
 
@@ -40,7 +41,12 @@ function Command:get_workspace_edit()
 end
 
 function Command:execute()
-  vim.lsp.buf.execute_command(self.server_data)
+  local source = config.source
+  if source == 'nvim_lsp' then
+    vim.lsp.buf.execute_command(self.server_data)
+  elseif source == 'coc' then
+    vim.fn.CocActionAsync('doCodeAction', self.server_data)
+  end
 end
 
 return Command

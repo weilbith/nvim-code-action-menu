@@ -5,6 +5,7 @@ local TextDocumentEdit = require(
 local WorkspaceEdit = require(
   'code_action_menu.lsp_objects.edits.workspace_edit'
 )
+local config = require('code_action_menu.config')
 
 local CodeAction = BaseAction:new({})
 
@@ -77,16 +78,22 @@ function CodeAction:get_workspace_edit()
 end
 
 function CodeAction:execute()
-  if self:is_workspace_edit() then
-    vim.lsp.util.apply_workspace_edit(self.server_data.edit)
-  elseif self:is_command() then
-    vim.lsp.buf.execute_command(self.server_data.command)
-  else
-    vim.api.nvim_notify(
-      'Failed to execute code action of unknown kind!',
-      vim.log.levels.ERROR,
-      {}
-    )
+  local source = config.source
+  if source == 'nvim_lsp' then
+    do
+      if self:is_workspace_edit() then
+        vim.lsp.util.apply_workspace_edit(self.server_data.edit)
+      elseif self:is_command() then
+        vim.lsp.buf.execute_command(self.server_data.command)
+      else
+        vim.notify(
+          'Failed to execute code action of unknown kind!',
+          vim.log.levels.ERROR
+        )
+      end
+    end
+  elseif source == 'coc' then
+    vim.fn.CocActionAsync('doCodeAction', self.server_data)
   end
 end
 
