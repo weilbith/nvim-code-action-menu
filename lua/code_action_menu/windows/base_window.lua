@@ -5,6 +5,7 @@ local BaseWindow = {
   window_number = -1,
   window_options = nil,
   buffer_number = -1,
+  focusable = false,
   filetype = '',
   namespace_id = vim.api.nvim_create_namespace('code_action_menu'),
 }
@@ -80,7 +81,7 @@ function BaseWindow:open(window_configuration_options)
   if self.window_number == -1 then
     self.window_number = vim.api.nvim_open_win(
       self.buffer_number,
-      config.window_focusable,
+      self.focusable,
       window_configuration
     )
     self.window_options = vim.api.nvim_win_get_config(self.window_number)

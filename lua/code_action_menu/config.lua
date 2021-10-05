@@ -1,7 +1,6 @@
 local settings = {
   source = 'nvim_lsp', -- nvim_lsp | coc
   window_options = {}, -- additional options for code-aciton-menu windows
-  window_focusable = true,
 }
 
 local function setup(opts)
