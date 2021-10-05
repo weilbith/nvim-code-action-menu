@@ -1,4 +1,5 @@
 local buffer_utils = require('code_action_menu.utility_functions.buffers')
+local config = require('code_action_menu.config')
 
 local BaseWindow = {
   window_number = -1,
@@ -87,6 +88,10 @@ function BaseWindow:open(window_configuration_options)
     vim.api.nvim_command('doautocmd User CodeActionMenuWindowOpened')
   else
     vim.api.nvim_win_set_config(self.window_number, window_configuration)
+  end
+
+  for name, value in pairs(config.window_options) do
+    vim.api.nvim_win_set_option(self.window_number, name, value)
   end
 
   self:after_opened()

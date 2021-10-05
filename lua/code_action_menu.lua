@@ -39,15 +39,8 @@ local function close_warning_message_window()
   end
 end
 
-local function open_code_action_menu()
-  -- Might still be open.
-  close_code_action_menu()
-  close_warning_message_window()
-
-  local use_range = vim.api.nvim_get_mode().mode ~= 'n'
-  local all_actions = action_utils.request_actions_from_all_servers(use_range)
-
-  if #all_actions == 0 then
+local function actions_handler(actions)
+  if actions and #actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()
     warning_message_window_instace:open()
     vim.api.nvim_command(
@@ -55,11 +48,17 @@ local function open_code_action_menu()
     )
   else
     anchor_window_instance = AnchorWindow:new()
-    menu_window_instance = MenuWindow:new(all_actions)
+    menu_window_instance = MenuWindow:new(actions)
     menu_window_instance:open({
       window_stack = { anchor_window_instance },
     })
   end
+end
+
+local function open_code_action_menu(...)
+  close_code_action_menu()
+  close_warning_message_window()
+  action_utils.request_actions_from_all_servers(actions_handler, ...)
 end
 
 local function update_selected_action()
@@ -97,11 +96,7 @@ local function execute_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
 
   if selected_action:is_disabled() then
-    vim.api.nvim_notify(
-      'Can not execute disabled action!',
-      vim.log.levels.ERROR,
-      {}
-    )
+    vim.notify('Can not execute disabled action!', vim.log.levels.ERROR)
   else
     close_code_action_menu() -- Close first to execute the action in the correct buffer.
     selected_action:execute()
