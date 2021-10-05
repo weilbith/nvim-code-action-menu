@@ -107,7 +107,3 @@ files yourself and get the full power of customization.
 At the current state of documentation I must redirect you to the syntax files in
 the source code of the plugin to get a list of available highlight groups. The
 user can simply overwrite any of the default mappings to his liking.
-
-```
-
-```
