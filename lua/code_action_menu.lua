@@ -62,35 +62,47 @@ local function open_code_action_menu()
   end
 end
 
+local function update_details_window(selected_action)
+  if
+    vim.g.code_action_menu_show_details == nil
+    or vim.g.code_action_menu_show_details
+  then
+    if details_window_instance == nil then
+      details_window_instance = DetailsWindow:new(selected_action)
+    else
+      details_window_instance:set_action(selected_action)
+    end
+
+    local window_stack = { anchor_window_instance, menu_window_instance }
+
+    details_window_instance:open({ window_stack = window_stack })
+  end
+end
+
+local function update_diff_window(selected_action)
+  if
+    vim.g.code_action_menu_show_diff == nil or vim.g.code_action_menu_show_diff
+  then
+    if diff_window_instance == nil then
+      diff_window_instance = DiffWindow:new(selected_action)
+    else
+      diff_window_instance:set_action(selected_action)
+    end
+
+    local window_stack = { anchor_window_instance, menu_window_instance }
+
+    if details_window_instance ~= nil then
+      table.insert(window_stack, details_window_instance)
+    end
+
+    diff_window_instance:open({ window_stack = window_stack })
+  end
+end
+
 local function update_selected_action()
   local selected_action = menu_window_instance:get_selected_action()
-
-  if details_window_instance == nil then
-    details_window_instance = DetailsWindow:new(selected_action)
-  else
-    details_window_instance:set_action(selected_action)
-  end
-
-  details_window_instance:open({
-    window_stack = {
-      anchor_window_instance,
-      menu_window_instance,
-    },
-  })
-
-  if diff_window_instance == nil then
-    diff_window_instance = DiffWindow:new(selected_action)
-  else
-    diff_window_instance:set_action(selected_action)
-  end
-
-  diff_window_instance:open({
-    window_stack = {
-      anchor_window_instance,
-      menu_window_instance,
-      details_window_instance,
-    },
-  })
+  update_details_window(selected_action)
+  update_diff_window(selected_action)
 end
 
 local function execute_selected_action()
