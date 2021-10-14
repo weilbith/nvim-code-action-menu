@@ -104,7 +104,7 @@ local function request_actions_from_all_servers(use_range)
   local all_clients = vim.lsp.buf_get_clients()
   local all_actions = {}
 
-  for _, client in ipairs(all_clients) do
+  for _, client in pairs(all_clients) do
     local action_data_objects = request_actions_from_server(client.id, request_parameters)
     local actions = parse_action_data_objects(client.id, action_data_objects)
     vim.list_extend(all_actions, actions)
