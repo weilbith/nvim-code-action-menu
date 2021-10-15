@@ -60,7 +60,10 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     ['buffer number to create window for'] = { self.buffer_number, 'number' },
   })
   vim.validate({
-    ['window configuration options'] = { window_configuration_options, 'table' },
+    ['window configuration options'] = {
+      window_configuration_options,
+      'table',
+    },
   })
   vim.validate({
     ['window stack'] = { window_configuration_options.window_stack, 'table' },
@@ -124,7 +127,9 @@ function StackingWindow:after_opened()
       self:set_window_width(last_window_width)
     else
       for _, window in ipairs(self.window_stack) do
-        window:set_window_width(own_width)
+        if not window.is_anchor then
+          window:set_window_width(own_width)
+        end
       end
     end
   end
