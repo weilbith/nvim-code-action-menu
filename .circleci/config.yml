@@ -1,0 +1,90 @@
+version: 2.1
+
+parameters:
+  base_docker_image:
+    type: string
+    default: weilbith/ci-nvim-code-action-menu:0.0.1
+
+  working_directory:
+    type: string
+    default: ~/repository
+
+anchor_1: &*attach_options
+  at: << pipeline.parameters.working_directory >>
+
+executors:
+  base_executor:
+    docker:
+      - image: << pipeline.parameters.base_docker_image >>
+    working_directory: << pipeline.parameters.working_directory >>
+    environment:
+      PRE_COMMIT_HOME: << pipeline.parameters.working_directory >>/pre-commit
+
+commands:
+  run_pre_commit_hook:
+    parameters:
+      hook_id:
+        description: The identifier of the hook to execute
+        type: string
+    steps:
+      - run:
+          name: Run Pre-commit hook '<< parameters.hook_id >>'
+          command: >
+            pre-commit run
+            --all-files --verbose --show-diff-on-failure
+            << parameters.hook_id >>
+
+jobs:
+  setup:
+    executor: base_executor
+    steps:
+      - checkout
+      - restore_cache:
+          key: pre-commit-cache-v2-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Install pre-commit hooks
+          command: pre-commit install-hooks
+      - save_cache:
+          key: pre-commit-cache-v2-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - << pipeline.parameters.working_directory >>/pre-commit
+      - persist_to_workspace:
+          root: << pipeline.parameters.working_directory >>
+          paths:
+            - ./*
+
+  run_linters:
+    executor: base_executor
+    steps:
+      - attach_workspace: **attach_options
+      - run_pre_commit_hook:
+          hook_id: luacheck
+      - run_pre_commit_hook:
+          hook_id: vint
+      - run_pre_commit_hook:
+          hook_id: check-added-large-files
+      - run_pre_commit_hook:
+          hook_id: detect-private-key
+
+  check_formatting:
+    executor: base_executor
+    steps:
+      - attach_workspace: **attach_options
+      - run_pre_commit_hook:
+          hook_id: stylua
+      - run_pre_commit_hook:
+          hook_id: end-of-file-fixer
+      - run_pre_commit_hook:
+          hook_id: trailing-whitespace
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - setup
+      - run_linters:
+          requires:
+            - setup
+      - check_formatting:
+          requires:
+            - setup
