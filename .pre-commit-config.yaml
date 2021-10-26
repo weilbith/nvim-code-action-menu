@@ -21,6 +21,11 @@ repos:
         language: system
         files: ^.*\.lua$
 
+  - repo: https://github.com/syntaqx/git-hooks
+    rev: v0.0.16
+    hooks:
+      - id: circleci-config-validate
+
   - repo: https://github.com/Vimjas/vint
     rev: v0.4a4
     hooks:
