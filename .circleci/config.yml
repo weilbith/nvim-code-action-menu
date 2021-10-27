@@ -77,6 +77,15 @@ jobs:
       - run_pre_commit_hook:
           hook_id: trailing-whitespace
 
+  find_fixup_commits:
+    executor: base_executor
+    steps:
+      - attach_workspace: **attach_options
+      - run:
+          name: Verify that there are no fixup commits in the git history
+          command: >
+            exit $(git log --pretty=format:%s main.. | grep fixup! | wc --lines)
+
 workflows:
   version: 2
   default:
@@ -86,5 +95,8 @@ workflows:
           requires:
             - setup
       - check_formatting:
+          requires:
+            - setup
+      - find_fixup_commits:
           requires:
             - setup
