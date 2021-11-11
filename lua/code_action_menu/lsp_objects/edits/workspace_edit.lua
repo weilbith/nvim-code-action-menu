@@ -14,7 +14,7 @@ function WorkspaceEdit:add_text_document_edit(text_document_edit)
 
   for _, existing_text_document_edit in ipairs(self.all_text_document_edits) do
     if existing_text_document_edit.uri == text_document_edit.uri then
-      existing_text_document_edit.merge_text_document_edit_for_same_uri(
+      existing_text_document_edit:merge_text_document_edit_for_same_uri(
         text_document_edit
       )
       return
