@@ -78,7 +78,8 @@ local function get_list_of_added_lines_in_edit(uri, edit)
   local first_original_complete_line = vim.lsp.util.get_line(
     uri,
     edit.range.start.line
-  )
+  ) or ''
+
   local text_before_changes = first_original_complete_line:sub(
     0,
     edit.range.start.character
@@ -88,7 +89,7 @@ local function get_list_of_added_lines_in_edit(uri, edit)
   local last_original_complete_line = vim.lsp.util.get_line(
     uri,
     edit.range['end'].line
-  )
+  ) or ''
 
   if #last_original_complete_line > edit.range['end'].character then
     local text_after_changes = last_original_complete_line:sub(
