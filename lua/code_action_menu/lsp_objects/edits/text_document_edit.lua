@@ -2,6 +2,40 @@ local TextDocumentEditStatusEnum = require(
   'code_action_menu.enumerations.text_document_edit_status_enum'
 )
 
+local function get_line(uri, row)
+  local uv = vim.loop
+  -- load the buffer if this is not a file uri
+  -- Custom language server protocol extensions can result in servers sending URIs with custom schemes. Plugins are able to load these via `BufReadCmd` autocmds.
+  if uri:sub(1, 4) ~= "file" then
+    local bufnr = vim.uri_to_bufnr(uri)
+    vim.fn.bufload(bufnr)
+    return (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
+  end
+
+  local filename = vim.uri_to_fname(uri)
+
+  -- use loaded buffers if available
+  if vim.fn.bufloaded(filename) == 1 then
+    local bufnr = vim.fn.bufnr(filename, false)
+    return (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
+  end
+
+  local fd = uv.fs_open(filename, "r", 438)
+  -- TODO: what should we do in this case?
+  if not fd then return "" end
+  local stat = uv.fs_fstat(fd)
+  local data = uv.fs_read(fd, stat.size, 0)
+  uv.fs_close(fd)
+
+  local lnum = 0
+  for line in string.gmatch(data, "([^\n]*)\n?") do
+    if lnum == row then return line end
+    lnum = lnum + 1
+  end
+  return ""
+end
+
+
 local function get_line_count_of_text(text)
   vim.validate({ ['text to get line count for'] = { text, 'string' } })
 
@@ -75,7 +109,7 @@ local function get_list_of_added_lines_in_edit(uri, edit)
     table.insert(added_lines, line)
   end
 
-  local first_original_complete_line = vim.lsp.util.get_line(
+  local first_original_complete_line = get_line(
     uri,
     edit.range.start.line
   ) or ''
@@ -86,7 +120,7 @@ local function get_list_of_added_lines_in_edit(uri, edit)
   )
   added_lines[1] = text_before_changes .. added_lines[1]
 
-  local last_original_complete_line = vim.lsp.util.get_line(
+  local last_original_complete_line = get_line(
     uri,
     edit.range['end'].line
   ) or ''
@@ -112,7 +146,7 @@ local function get_list_of_original_lines(uri, start_line, end_line)
   local original_lines = {}
 
   for line_index = start_line, end_line, 1 do
-    local line = vim.lsp.util.get_line(uri, line_index)
+    local line = get_line(uri, line_index)
 
     if line ~= nil then
       line = line_index .. ' ' .. line
