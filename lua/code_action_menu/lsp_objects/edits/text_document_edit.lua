@@ -3,13 +3,10 @@ local TextDocumentEditStatusEnum = require(
 )
 
 local function get_line(uri, row)
-  local uv = vim.loop
   -- load the buffer if this is not a file uri
   -- Custom language server protocol extensions can result in servers sending URIs with custom schemes. Plugins are able to load these via `BufReadCmd` autocmds.
   if uri:sub(1, 4) ~= "file" then
-    local bufnr = vim.uri_to_bufnr(uri)
-    vim.fn.bufload(bufnr)
-    return (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
+    vim.fn.bufload(vim.uri_to_bufnr(uri))
   end
 
   local filename = vim.uri_to_fname(uri)
@@ -20,17 +17,16 @@ local function get_line(uri, row)
     return (vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false) or { "" })[1]
   end
 
-  local fd = uv.fs_open(filename, "r", 438)
-  -- TODO: what should we do in this case?
+  local fd = vim.loop.fs_open(filename, "r", 438)
   if not fd then return "" end
-  local stat = uv.fs_fstat(fd)
-  local data = uv.fs_read(fd, stat.size, 0)
-  uv.fs_close(fd)
+  local stat = vim.loop.fs_fstat(fd)
+  local data = vim.loop.fs_read(fd, stat.size, 0)
+  vim.loop.fs_close(fd)
 
-  local lnum = 0
+  local line_number = 0
   for line in string.gmatch(data, "([^\n]*)\n?") do
-    if lnum == row then return line end
-    lnum = lnum + 1
+    if line_number == row then return line end
+    line_number = line_number + 1
   end
   return ""
 end
