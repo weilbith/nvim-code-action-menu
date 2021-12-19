@@ -2,6 +2,56 @@ local TextDocumentEditStatusEnum = require(
   'code_action_menu.enumerations.text_document_edit_status_enum'
 )
 
+local inaccessible_content_placeholder = '<inaccessible content>'
+
+local function uri_has_custom_scheme(uri)
+  return uri:sub(1, 4) ~= 'file'
+end
+
+local function read_line_from_file(file_name, row)
+  local file_descriptor = vim.loop.fs_open(file_name, 'r', 438)
+
+  if not file_descriptor then
+    return inaccessible_content_placeholder
+  end
+
+  local file_statistics = vim.loop.fs_fstat(file_descriptor)
+  local file_content = vim.loop.fs_read(
+    file_descriptor,
+    file_statistics.size,
+    0
+  )
+  vim.loop.fs_close(file_descriptor)
+
+  local line_number = 0
+
+  for line in string.gmatch(file_content, '([^\n]*)\n?') do
+    if line_number == row then
+      return line
+    end
+    line_number = line_number + 1
+  end
+
+  return inaccessible_content_placeholder
+end
+
+local function get_line(uri, row)
+  if uri_has_custom_scheme(uri) then
+    local buffer_number = vim.uri_to_bufnr(uri)
+    vim.fn.bufload(buffer_number)
+  end
+
+  local file_name = vim.uri_to_fname(uri)
+
+  if vim.fn.bufloaded(file_name) == 1 then
+    local buffer_number = vim.fn.bufnr(file_name, false)
+    local lines = vim.api.nvim_buf_get_lines(buffer_number, row, row + 1, false)
+    return lines[1] or inaccessible_content_placeholder
+  end
+
+  return read_line_from_file(file_name, row)
+end
+
 local function get_line_count_of_text(text)
   vim.validate({ ['text to get line count for'] = { text, 'string' } })
 
@@ -75,10 +125,8 @@ local function get_list_of_added_lines_in_edit(uri, edit)
     table.insert(added_lines, line)
   end
 
-  local first_original_complete_line = vim.lsp.util.get_line(
-    uri,
-    edit.range.start.line
-  ) or ''
+  local first_original_complete_line = get_line(uri, edit.range.start.line)
+    or ''
 
   local text_before_changes = first_original_complete_line:sub(
     0,
@@ -86,10 +134,8 @@ local function get_list_of_added_lines_in_edit(uri, edit)
   )
   added_lines[1] = text_before_changes .. added_lines[1]
 
-  local last_original_complete_line = vim.lsp.util.get_line(
-    uri,
-    edit.range['end'].line
-  ) or ''
+  local last_original_complete_line = get_line(uri, edit.range['end'].line)
+    or ''
 
   if #last_original_complete_line > edit.range['end'].character then
     local text_after_changes = last_original_complete_line:sub(
@@ -112,7 +158,7 @@ local function get_list_of_original_lines(uri, start_line, end_line)
   local original_lines = {}
 
   for line_index = start_line, end_line, 1 do
-    local line = vim.lsp.util.get_line(uri, line_index)
+    local line = get_line(uri, line_index)
 
     if line ~= nil then
       line = line_index .. ' ' .. line
