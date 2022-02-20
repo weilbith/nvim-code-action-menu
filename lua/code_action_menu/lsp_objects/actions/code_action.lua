@@ -78,7 +78,7 @@ end
 
 function CodeAction:execute()
   if self:is_workspace_edit() then
-    vim.lsp.util.apply_workspace_edit(self.server_data.edit)
+    vim.lsp.util.apply_workspace_edit(self.server_data.edit, 'utf-8')
   elseif self:is_command() then
     vim.lsp.buf.execute_command(self.server_data.command)
   else
