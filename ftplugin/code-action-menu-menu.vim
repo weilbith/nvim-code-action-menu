@@ -20,7 +20,7 @@ call feedkeys('jk')
 augroup CodeActionMenuMenu
   autocmd!
   autocmd CursorMoved <buffer> lua require('code_action_menu').update_selected_action()
-  autocmd User CodeActionMenuWindowOpened ++once set scrolloff=0
-  autocmd User CodeActionMenuWindowOpened ++once set cursorline
-  autocmd User CodeActionMenuWindowOpened ++once set winhighlight=CursorLine:CodeActionMenuMenuSelection
+  autocmd User CodeActionMenuWindowOpened ++once setlocal scrolloff=0
+  autocmd User CodeActionMenuWindowOpened ++once setlocal cursorline
+  autocmd User CodeActionMenuWindowOpened ++once setlocal winhighlight=CursorLine:CodeActionMenuMenuSelection
 augroup END
