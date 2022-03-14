@@ -72,6 +72,10 @@ apply it right away. In any case the menu window will close itself. If you want
 to manually close the window without selecting an action, just hit `<Esc>` or
 `q`.
 
+This plugin only supports nvim_lsp, if you are using coc.nvim, you can install 
+[coc-code-action-menu.nvim](https://github.com/xiyaowong/coc-code-action-menu.nvim)
+to add support for coc.nvim.
+
 ## Customization
 
 The plugin allows for a bunch of customization. While there is no classic
