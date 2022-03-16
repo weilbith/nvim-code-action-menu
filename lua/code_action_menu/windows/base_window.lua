@@ -45,11 +45,9 @@ end
 function BaseWindow:get_window_configuration(_)
   local buffer_width = buffer_utils.get_buffer_width(self.buffer_number) + 1
   local buffer_height = buffer_utils.get_buffer_height(self.buffer_number)
-  return vim.lsp.util.make_floating_popup_options(
-    buffer_width,
-    buffer_height,
-    { border = 'single' }
-  )
+  return vim.lsp.util.make_floating_popup_options(buffer_width, buffer_height, {
+    border = vim.g.code_action_menu_window_border or 'single',
+  })
 end
 
 function BaseWindow:open(window_configuration_options)
