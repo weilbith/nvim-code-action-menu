@@ -1,4 +1,4 @@
-FROM archlinux:base-devel-20211024.0.37588
+FROM archlinux/archlinux:base-devel-20220316.0.50542
 
 RUN pacman --sync --sysupgrade --refresh --noconfirm
 RUN pacman --sync --noconfirm git
