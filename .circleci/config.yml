@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   base_docker_image:
     type: string
-    default: weilbith/ci-nvim-code-action-menu:0.0.1
+    default: weilbith/ci-nvim-code-action-menu:0.0.2
 
   working_directory:
     type: string
