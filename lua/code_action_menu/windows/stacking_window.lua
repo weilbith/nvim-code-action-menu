@@ -103,7 +103,7 @@ function StackingWindow:get_window_configuration(window_configuration_options)
     height = window_height,
     focusable = false,
     style = 'minimal',
-    border = 'single',
+    border = vim.g.code_action_menu_window_border or 'single',
   }
 end
 
