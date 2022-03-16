@@ -27,7 +27,7 @@ must be increased.
 The image can be simply build and updated like this:
 
 ```sh
-docker build --file="./circleci/Dockerfile" --tag weilbith/ci-nvim-code-action-menu:<new_version> .
+docker build --file="./.circleci/Dockerfile" --tag weilbith/ci-nvim-code-action-menu:<new_version> .
 docker push weilbith/ci-nvim-code-action-menu:<new_version>
 ```
 
