@@ -80,7 +80,24 @@ function CodeAction:execute()
   if self:is_workspace_edit() then
     vim.lsp.util.apply_workspace_edit(self.server_data.edit, 'utf-8')
   elseif self:is_command() then
-    vim.lsp.buf.execute_command(self.server_data.command)
+    local client = vim.lsp.get_client_by_id(self.client_id)
+    local fn = client.commands[self.server_data.command.command]
+      or vim.lsp.commands[self.server_data.command.command]
+    if fn then
+      local context = {}
+      context.diagnostic = vim.lsp.diagnostic.get_line_diagnostics()
+      local params = vim.lsp.util.make_range_params()
+      params.context = context
+
+      fn(self.server_data.command, {
+        bufnr = vim.api.nvim_get_current_buf(),
+        client_id = self.client_id,
+        method = 'textDocument/codeAction',
+        params = params,
+      })
+    else
+      vim.lsp.buf.execute_command(self.server_data.command)
+    end
   else
     vim.api.nvim_notify(
       'Failed to execute code action of unknown kind!',

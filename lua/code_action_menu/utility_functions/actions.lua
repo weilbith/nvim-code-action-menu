@@ -42,12 +42,12 @@ local function resolve_code_action(client_id, code_action_object)
   return action_object
 end
 
-local function parse_object_as_action(code_action_object)
+local function parse_object_as_action(code_action_object, client_id)
   if
     type(code_action_object) == 'table'
     and type(code_action_object.command) == 'string'
   then
-    return Command:new(code_action_object)
+    return Command:new({ code_action_object, client_id })
   elseif
     type(code_action_object) == 'table'
     and (
@@ -55,7 +55,7 @@ local function parse_object_as_action(code_action_object)
       or type(code_action_object.command) == 'table'
     )
   then
-    return CodeAction:new(code_action_object)
+    return CodeAction:new({ code_action_object, client_id })
   else
     local error =
       'Failed to parse unknown code action or command data structure! Skipped.'
@@ -74,7 +74,7 @@ local function parse_action_data_objects(client_id, all_code_action_objects)
       code_action_object = resolve_code_action(client_id, code_action_object)
     end
 
-    local action = parse_object_as_action(code_action_object)
+    local action = parse_object_as_action(code_action_object, client_id)
 
     if action ~= nil then
       table.insert(all_actions, action)
