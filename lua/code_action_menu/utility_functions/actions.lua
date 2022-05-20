@@ -101,17 +101,21 @@ local function request_actions_from_server(client_id, parameters)
   return action_objects or {}
 end
 
-local function request_actions_from_all_servers(use_range)
+local function request_actions_from_all_servers(options)
   vim.validate({
-    ['request action for range'] = { use_range, 'boolean', true },
+    ['options is table'] = { options, 't', true },
   })
 
-  local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
-  local request_parameters = use_range
-      and vim.lsp.util.make_given_range_params()
+  options = options or {}
+  local request_parameters =
+    options.use_range
+    and vim.lsp.util.make_given_range_params()
     or vim.lsp.util.make_range_params()
 
-  request_parameters.context = { diagnostics = line_diagnostics }
+  local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
+  request_parameters.context = {
+    diagnostics = options.diagnostics or line_diagnostics
+  }
 
   local all_clients = vim.lsp.buf_get_clients()
   local all_actions = {}
