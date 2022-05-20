@@ -39,13 +39,14 @@ local function close_warning_message_window()
   end
 end
 
-local function open_code_action_menu()
+local function open_code_action_menu(options)
   -- Might still be open.
   close_code_action_menu()
   close_warning_message_window()
 
-  local use_range = vim.api.nvim_get_mode().mode ~= 'n'
-  local all_actions = action_utils.request_actions_from_all_servers(use_range)
+  options = options or {}
+  options.use_range = vim.api.nvim_get_mode().mode ~= 'n'
+  local all_actions = action_utils.request_actions_from_all_servers(options)
 
   if #all_actions == 0 then
     warning_message_window_instace = WarningMessageWindow:new()
