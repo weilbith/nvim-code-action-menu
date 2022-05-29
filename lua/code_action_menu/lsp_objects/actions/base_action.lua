@@ -4,10 +4,9 @@ local WorkspaceEdit = require(
 
 local BaseAction = {}
 
-function BaseAction:new(server_data)
-  vim.validate({ ['server data'] = { server_data, 'table' } })
-
-  local instance = { server_data = server_data }
+function BaseAction:new(data)
+  vim.validate({ ['data'] = { data, 'table' } })
+  local instance = { server_data = data[1], client_id = data[2] }
   setmetatable(instance, self)
   self.__index = self
   return instance
