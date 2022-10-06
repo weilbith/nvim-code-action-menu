@@ -27,7 +27,10 @@ end
 function BaseWindow:update_buffer_content()
   vim.api.nvim_buf_clear_namespace(self.buffer_number, self.namespace_id, 0, -1)
 
-  local content = self:get_content()
+  local content = vim.tbl_map(
+    function(v) return v:gsub("\n"," ") end,
+    self:get_content()
+  )
 
   -- Unset and set the filtype option removes temporally th read-only property
   vim.api.nvim_buf_set_option(self.buffer_number, 'filetype', '')
