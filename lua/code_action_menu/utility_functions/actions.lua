@@ -102,14 +102,30 @@ local function request_actions_from_server(client_id, parameters)
 end
 
 local function get_range_request_parameters()
-  local selection_start = vim.fn.getpos('v')
+  local selection_start = {}
+  selection_start[1], selection_start[2] = unpack(vim.fn.getpos('v'), 2, 3)
+  -- NOTE: getpos's column is 1-based, and we need 0-based
+  selection_start[2] = selection_start[2] - 1
+
   local selection_end = vim.api.nvim_win_get_cursor(0)
 
-  return vim.lsp.util.make_given_range_params({
-    selection_start[2],
-    -- NOTE: getpos's column is 1-based, and we need 0-based
-    selection_start[3] - 1,
-  }, selection_end)
+  -- NOTE: handle "reverse" selection (the cursor is at the start of the
+  -- selection, not the end)
+  -- Flip based on lines
+  if selection_start[1] > selection_end[1] then
+    local temp_selection_end = selection_end
+    selection_end = selection_start
+    selection_start = temp_selection_end
+  end
+
+  -- Flip based on columns
+  if selection_start[2] > selection_end[2] then
+    local temp_selection_end = selection_end[2]
+    selection_end[2] = selection_start[2]
+    selection_start[2] = temp_selection_end
+  end
+
+  return vim.lsp.util.make_given_range_params(selection_start, selection_end)
 end
 
 local function request_actions_from_all_servers(options)
