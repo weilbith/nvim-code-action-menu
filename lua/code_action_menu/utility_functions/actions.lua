@@ -101,6 +101,17 @@ local function request_actions_from_server(client_id, parameters)
   return action_objects or {}
 end
 
+local function get_range_request_parameters()
+  local selection_start = vim.fn.getpos('v')
+  local selection_end = vim.api.nvim_win_get_cursor(0)
+
+  return vim.lsp.util.make_given_range_params({
+    selection_start[2],
+    -- NOTE: getpos's column is 1-based, and we need 0-based
+    selection_start[3] - 1,
+  }, selection_end)
+end
+
 local function request_actions_from_all_servers(options)
   vim.validate({
     ['options is table'] = { options, 't', true },
@@ -109,7 +120,7 @@ local function request_actions_from_all_servers(options)
   options = options or {}
   local request_parameters =
     options.use_range
-    and vim.lsp.util.make_given_range_params()
+    and get_range_request_parameters()
     or vim.lsp.util.make_range_params()
 
   local line_diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
