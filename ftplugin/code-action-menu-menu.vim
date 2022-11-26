@@ -13,10 +13,6 @@ nnoremap <buffer> 9 <cmd>lua require('code_action_menu').select_line_and_execute
 nnoremap <buffer> <Esc> <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
 nnoremap <buffer> q <cmd>lua require('code_action_menu').close_code_action_menu()<CR>
 
-" Fixes awkward visual selection (is it?) for range code actions.
-" Do this before the CursorMoved auto-command.
-call feedkeys('jk')
-
 augroup CodeActionMenuMenu
   autocmd!
   autocmd CursorMoved <buffer> lua require('code_action_menu').update_selected_action()
