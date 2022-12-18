@@ -111,9 +111,11 @@ interface:
 ```lua
 vim.g.code_action_menu_show_details = false
 vim.g.code_action_menu_show_diff = false
+vim.g.code_action_menu_show_action_kind = false
 ```
 
 ```vim
 let g:code_action_menu_show_details = v:false
 let g:code_action_menu_show_diff = v:false
+let g:code_action_menu_show_action_kind = v:false
 ```

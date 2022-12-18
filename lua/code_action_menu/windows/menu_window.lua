@@ -1,14 +1,25 @@
 local action_utils = require('code_action_menu.utility_functions.actions')
 local StackingWindow = require('code_action_menu.windows.stacking_window')
 
+local function format_action_kind(action_kind)
+  if
+    vim.g.code_action_menu_show_action_kind ~= nil
+    and not vim.g.code_action_menu_show_action_kind
+  then
+    return ''
+  end
+
+  return '(' .. action_kind .. ') '
+end
+
 local function format_summary_for_action(action, index)
   vim.validate({ ['action to format summary for'] = { action, 'table' } })
 
-  local formatted_index = ' [' .. index .. ']'
-  local kind = '(' .. action:get_kind() .. ')'
+  local formatted_index = ' [' .. index .. '] '
+  local kind = format_action_kind(action:get_kind())
   local title = action:get_title()
   local disabled = action:is_disabled() and ' [disabled]' or ''
-  return formatted_index .. ' ' .. kind .. ' ' .. title .. disabled
+  return formatted_index .. kind .. title .. disabled
 end
 
 local MenuWindow = StackingWindow:new()
