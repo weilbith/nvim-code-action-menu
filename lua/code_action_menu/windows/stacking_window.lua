@@ -117,8 +117,12 @@ function StackingWindow:after_opened()
   local last_window = self.window_stack[#self.window_stack]
 
   if not last_window.is_anchor then
-    local own_width = buffer_utils.get_buffer_width(self.buffer_number)
-    local last_width = buffer_utils.get_buffer_width(last_window.buffer_number)
+    -- NOTE: window widths are set inside each `:open()` call.
+    -- They could have been updated in previous `:after_opened()` for previous stacking windows.
+    -- We cannot rely on `buffer_utils.get_buffer_width`, because the width could have
+    -- been changed and be out of sync with the width suggested by the buffer contents.
+    local own_width = vim.api.nvim_win_get_width(self.window_number)
+    local last_width = vim.api.nvim_win_get_width(last_window.window_number)
 
     if last_width >= own_width then
       self:set_window_width(last_width)
