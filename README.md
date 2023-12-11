@@ -1,5 +1,18 @@
 # NeoVim Code Action Menu
 
+> [!WARNING]
+> My apologies for archiving this repository. Though I guess it doesn't make
+> a difference because I left this plugin unmaintained for quite some time now.
+> I shared this plugin too early, it gathered attention too quickly and it was
+> just too unsophisticated. I failed to rewrite this plugin multiple times to a
+> state I like. Finally I got disappointed myself and just left it where is.
+>
+> By now there are other nice alternatives like support from
+> [fzf-lua](https://github.com/ibhagwan/fzf-lua) or
+> [actions-preview.nvim](https://github.com/aznhe21/actions-preview.nvim). So
+> I finally archive this repository now. It still works as before. But it makes
+> kinda official that it was a failed experiment.
+
 > **NOTE:**
 > This is still a beta version. Though it runs quite stable since some months,
 > it has not been tested with many language servers. Moreover there is a good
